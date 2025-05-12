@@ -31,6 +31,12 @@ return [
 
     'connections' => [
 
+        'sqlite_testing' => [ // Add this connection
+            'driver' => 'sqlite',
+            'database' => env('DB_DATABASE', ':memory:'), // Use in-memory database
+            'prefix' => '',
+            'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
+        ],
         'sqlite' => [
             'driver' => 'sqlite',
             'url' => env('DB_URL'),
