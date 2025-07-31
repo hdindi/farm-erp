@@ -27,7 +27,8 @@
                     {{-- Pass necessary collections from controller --}}
                     @include('daily-records._form', [
                        'batches' => $batches,
-                       'stages' => $stages
+                       'stages' => $stages,
+                       'stagesData' => $stagesData
                    ])
 
                 </form>

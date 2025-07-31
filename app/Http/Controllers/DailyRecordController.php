@@ -27,7 +27,28 @@ class DailyRecordController extends Controller
         // Fetch active batches and all stages for the dropdowns
         $batches = Batch::where('status', 'active')->orderBy('batch_code')->get();
         $stages = Stage::orderBy('min_age_days')->get();
-        return view('daily-records.create', compact('batches', 'stages'));
+
+
+        // This creates the clean data structure needed for the JavaScript.
+        $stagesData = $stages->mapWithKeys(function ($stage) {
+            return [(string)$stage->id => [
+                'min_age_days' => (int)$stage->min_age_days,
+                'max_age_days' => (int)$stage->max_age_days,
+            ]];
+        })->all(); // Use ->all() to get a clean PHP array
+
+        // Pass the clean array to the view
+        // This is to ensure the JavaScript can access the stage data easily.
+
+
+        return view('daily-records.create', [
+            'batches' => $batches,
+            'stages' => $stages,
+            'stagesData' => $stagesData, // Pass the clean array
+        ]);
+
+
+        //return view('daily-records.create', compact('batches', 'stages', 'stagesData'));
     }
 
     /**

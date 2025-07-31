@@ -61,6 +61,17 @@
             background: #f8f9fa; /* Match bg-light */
         }
 
+        .alert-message {
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            color: #842029; /* Dark red text */
+            background-color: #f8d7da; /* Light red background */
+            border: 1px solid #f5c2c7; /* Red border */
+            font-size: 0.9em;
+        }
+
         /* Hide text, show only icons when collapsed (More advanced - requires JS to add class to body/sidebar) */
         /*
         body.sidebar-collapsed #sidebar .nav-link span { display: none; }

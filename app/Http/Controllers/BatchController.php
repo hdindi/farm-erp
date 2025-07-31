@@ -6,6 +6,14 @@ use App\Models\Batch;
 use App\Models\BirdType;
 use App\Models\Breed;
 use Illuminate\Http\Request;
+use Carbon\Carbon; // Make sure to import Carbon
+
+/**
+ * Get batch details including its current age in days.
+ *
+ * @param  \App\Models\Batch  $batch
+ * @return \Illuminate\Http\JsonResponse
+ */
 
 class BatchController extends Controller
 {
@@ -86,4 +94,30 @@ class BatchController extends Controller
         return redirect()->route('batches.index')
             ->with('success', 'Batch deleted successfully.');
     }
+
+
+
+    public function getBatchDetails(Batch $batch)
+    {
+        $hatchDate = Carbon::parse($batch->hatch_date);
+        $dateReceived = Carbon::parse($batch->date_received);
+
+        // 1. Bird's biological age in days and weeks
+        $ageInDays = $hatchDate->diffInDays(Carbon::now());
+        $ageInWeeks = floor($ageInDays / 7);
+
+        // 2. Expected culling date (24 months after date_received)
+        $expectedCullingDate = $dateReceived->copy()->addMonths(24)->format('Y-m-d');
+
+        return response()->json([
+            'age_in_days'         => $ageInDays,
+            'date_received'       => $dateReceived->format('Y-m-d'),
+            // ✅ NEW DATA being sent to the frontend
+            'initial_population'  => $batch->initial_population,
+            'bird_week'           => $ageInWeeks,
+            'expected_culling_date' => $expectedCullingDate,
+        ]);
+    }
+
+
 }
