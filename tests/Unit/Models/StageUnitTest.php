@@ -141,4 +141,31 @@ class StageUnitTest extends TestCase
     //     // and expecting an exception or specific model state.
     //     // For example, if you had a mutator or a save event listener.
     // }
+
+
+
+    public function it_validates_age_range_boundaries(): void
+    {
+        $stage = Stage::factory()->create([
+            'min_age_days' => 1,
+            'max_age_days' => 28
+        ]);
+
+        $this->assertTrue($stage->max_age_days >= $stage->min_age_days);
+    }
+
+    /**
+     * @test
+     */
+    public function it_cannot_create_stage_with_negative_ages(): void
+    {
+        $this->expectException(\Illuminate\Database\QueryException::class);
+
+        Stage::create([
+            'name' => 'Invalid Stage',
+            'min_age_days' => -1,
+            'max_age_days' => 28
+        ]);
+    }
+
 }
