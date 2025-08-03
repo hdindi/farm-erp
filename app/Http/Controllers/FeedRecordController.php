@@ -18,17 +18,24 @@ class FeedRecordController extends Controller
         return view('feed-records.index', compact('feedRecords'));
     }
 
+
+    /**
+     * Show the form for creating a new resource.
+     */
     public function create()
     {
+        // Fetch daily records where a feed record hasn't been added yet for simplicity,
+        // or just fetch recent ones.
         $dailyRecords = DailyRecord::with('batch')
-            ->whereHas('batch', function($query) {
-                $query->where('status', 'active');
-            })
+            ->orderBy('record_date', 'desc')
+            ->limit(100) // Limit the dropdown size for performance
             ->get();
 
         $feedTypes = FeedType::all();
+
         return view('feed-records.create', compact('dailyRecords', 'feedTypes'));
     }
+
 
     public function store(Request $request)
     {
@@ -53,15 +60,18 @@ class FeedRecordController extends Controller
         return view('feed-records.show', compact('feedRecord'));
     }
 
+    /**
+     * Show the form for editing the specified resource.
+     */
     public function edit(FeedRecord $feedRecord)
     {
         $dailyRecords = DailyRecord::with('batch')
-            ->whereHas('batch', function($query) {
-                $query->where('status', 'active');
-            })
+            ->orderBy('record_date', 'desc')
+            ->limit(100)
             ->get();
 
         $feedTypes = FeedType::all();
+
         return view('feed-records.edit', compact('feedRecord', 'dailyRecords', 'feedTypes'));
     }
 

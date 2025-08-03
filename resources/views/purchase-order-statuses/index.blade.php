@@ -89,7 +89,7 @@
                     </table>
                 </div>
                 <div class="d-flex justify-content-center mt-4">
-                    {{ $statuses->links() }} {{-- Keep if NOT using DataTables or need server-side links --}}
+{{--                    {{ $statuses->links() }} {{-- Keep if NOT using DataTables or need server-side links --}}
                 </div>
             </div>
         </div>

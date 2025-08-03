@@ -124,10 +124,7 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="d-flex justify-content-center mt-4">
-                    {{-- Add query string parameters to pagination links if filters are applied --}}
-                    {{ $auditLogs->appends(request()->query())->links() }}
-                </div>
+
             </div>
         </div>
     </div>
@@ -140,7 +137,7 @@
             $('#audit-logs-table').DataTable({
                 responsive: true,
                 // Disable export buttons by default for logs, can be added if needed
-                dom: 'lfrtip', // Basic layout: length, filtering, processing, table, info, pagination
+                dom: 'Blfrtip', // Basic layout: length, filtering, processing, table, info, pagination
                 // Add Buttons extension configuration if needed:
                 // dom: 'Bfrtip',
                 // buttons: [ 'copy', 'excel', 'csv', 'pdf', 'print', 'colvis' ],

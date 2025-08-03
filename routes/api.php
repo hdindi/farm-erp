@@ -22,3 +22,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Add your other API routes
 
 Route::get('/batches/{batch}', [BatchController::class, 'getBatchDetails']);
+Route::get('/daily-records/{dailyRecord}/feed-data', [BatchController::class, 'getFeedDataForDailyRecord']);
+

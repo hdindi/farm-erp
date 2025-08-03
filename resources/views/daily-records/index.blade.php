@@ -2,15 +2,6 @@
 
 @section('title', 'Daily Records')
 
-@push('styles')
-    <style>
-        .dataTables_wrapper .row:first-child { margin-bottom: 1rem; }
-        .dt-buttons .btn { margin-right: 0.5rem; }
-        #daily-records-table th.numeric,
-        #daily-records-table td.numeric { text-align: right; }
-    </style>
-@endpush
-
 @section('content')
     <div class="container-fluid">
         <div class="row justify-content-between align-items-center mb-4">
@@ -24,8 +15,7 @@
             </div>
         </div>
 
-        {{-- Filtering Section (Optional) --}}
-        {{-- Consider filters for Batch, Stage, Date Range --}}
+        @include('partials.alerts')
 
         <div class="card">
             <div class="card-header">
@@ -50,20 +40,20 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {{-- $dailyRecords passed from Controller (with eager loaded relations) --}}
-                        @foreach($dailyRecords as $record)
+                        @forelse ($dailyRecords as $record)
                             <tr>
                                 <td>{{ $record->id }}</td>
-                                <td>{{ $record->record_date ? $record->record_date->format('Y-m-d') : 'N/A' }}</td>
+                                <td>{{ $record->record_date->format('Y-m-d') }}</td>
                                 <td>{{ $record->batch->batch_code ?? 'N/A' }}</td>
                                 <td>{{ $record->stage->name ?? 'N/A' }}</td>
                                 <td class="numeric">{{ $record->day_in_stage }}</td>
-                                <td class="numeric">{{ $record->alive_count }}</td>
-                                <td class="numeric">{{ $record->dead_count }}</td>
-                                <td class="numeric">{{ $record->culls_count }}</td>
-                                <td class="numeric">{{ $record->average_weight_grams ?? '-' }}</td>
-                                <td class="numeric">{{ $record->mortality_rate !== null ? number_format($record->mortality_rate, 2) : '-' }}</td>
+                                <td class="numeric">{{ number_format($record->alive_count) }}</td>
+                                <td class="numeric">{{ number_format($record->dead_count) }}</td>
+                                <td class="numeric">{{ number_format($record->culls_count) }}</td>
+                                <td class="numeric">{{ $record->average_weight_grams }}</td>
+                                <td class="numeric">{{ number_format($record->mortality_percentage, 2) }}</td>
                                 <td>
+                                    {{-- Actions: View, Edit, Delete Modals --}}
                                     <div class="btn-group" role="group" aria-label="Record Actions">
                                         <a href="{{ route('daily-records.show', $record->id) }}" class="btn btn-sm btn-info me-1" title="View">
                                             <i class="fas fa-eye"></i>
@@ -77,20 +67,21 @@
                                     </div>
 
                                     {{-- Delete Confirmation Modal --}}
-                                    <div class="modal fade" id="deleteModal_{{ $record->id }}" tabindex="-1"> {{-- Content Here --}}
+                                    <div class="modal fade" id="deleteModal_{{ $record->id }}" tabindex="-1" aria-labelledby="deleteModalLabel_{{ $record->id }}" aria-hidden="true">
                                         <div class="modal-dialog">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title text-danger"><i class="fas fa-exclamation-triangle"></i> Confirm Deletion</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                    <h5 class="modal-title text-danger" id="deleteModalLabel_{{ $record->id }}"><i class="fas fa-exclamation-triangle"></i> Confirm Deletion</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
                                                 <div class="modal-body">
-                                                    Are you sure you want to delete Daily Record <strong>#{{ $record->id }}</strong>? Associated feed, egg, and vaccination records for this day will also be deleted.
+                                                    Are you sure you want to delete Daily Record <strong>#{{ $record->id }}</strong>? This action cannot be undone.
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                                                     <form action="{{ route('daily-records.destroy', $record->id) }}" method="POST" class="d-inline">
-                                                        @csrf @method('DELETE')
+                                                        @csrf
+                                                        @method('DELETE')
                                                         <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i> Delete</button>
                                                     </form>
                                                 </div>
@@ -99,39 +90,71 @@
                                     </div>
                                 </td>
                             </tr>
-                        @endforeach
+                        @empty
+                            <tr>
+                                <td colspan="11" class="text-center">No daily records found.</td>
+                            </tr>
+                        @endforelse
                         </tbody>
                     </table>
                 </div>
+
+                {{-- ✅ CORRECTED BOOTSTRAP 5 PAGINATION --}}
                 <div class="d-flex justify-content-center mt-4">
-                    {{ $dailyRecords->links() }} {{-- Keep if NOT using DataTables or need server-side links --}}
+                    {{ $dailyRecords->links('pagination::bootstrap-5') }}
                 </div>
+
             </div>
         </div>
     </div>
 @endsection
 
+@push('styles')
+    {{-- DataTables CSS --}}
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
+    <style>
+        .dataTables_wrapper .row:first-child { margin-bottom: 1rem; }
+        .dt-buttons .btn { margin-right: 0.5rem; }
+        .numeric { text-align: right; }
+    </style>
+@endpush
+
 @push('scripts')
+    {{-- DataTables JavaScript --}}
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
+
     <script>
         $(document).ready(function() {
             $('#daily-records-table').DataTable({
                 responsive: true,
-                // Add Buttons extension configuration
-                dom: 'Bfrtip', // Layout: Buttons, filtering, processing, table, info, pagination
+                // ✅ CORRECTED: 'p' (pagination) is removed from dom, and paging is set to false.
+                paging: false,
+                dom: 'Bfrti', // B=Buttons, f=filtering, r=processing, t=table, i=info
                 buttons: [
                     { extend: 'copyHtml5', text: '<i class="fas fa-copy"></i> Copy', titleAttr: 'Copy', className: 'btn btn-secondary' },
                     { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Excel', titleAttr: 'Excel', className: 'btn btn-success' },
                     { extend: 'csvHtml5', text: '<i class="fas fa-file-csv"></i> CSV', titleAttr: 'CSV', className: 'btn btn-info' },
-                    { extend: 'pdfHtml5', text: '<i class="fas fa-file-pdf"></i> PDF', titleAttr: 'PDF', className: 'btn btn-danger', orientation: 'landscape', pageSize: 'A4' }, // Landscape PDF
+                    { extend: 'pdfHtml5', text: '<i class="fas fa-file-pdf"></i> PDF', titleAttr: 'PDF', className: 'btn btn-danger', orientation: 'landscape' },
                     { extend: 'print', text: '<i class="fas fa-print"></i> Print', titleAttr: 'Print', className: 'btn btn-warning' },
                     { extend: 'colvis', text: '<i class="fas fa-eye-slash"></i> Columns', titleAttr: 'Columns', className: 'btn btn-light' }
                 ],
+                // Set default order by Record Date (column index 1) descending
+                order: [[ 1, 'desc' ]],
+                // Disable ordering and searching on the 'Actions' column
                 "columnDefs": [
-                    { "targets": [4, 5, 6, 7, 8, 9], "className": "numeric" }, // Align numeric columns right
-                    { "targets": [10], "orderable": false, "searchable": false } // Actions column
-                ],
-                // Default order by Record Date descending
-                order: [[ 1, 'desc' ]] // Order by Record Date column (index 1) descending
+                    { "orderable": false, "searchable": false, "targets": 10 }
+                ]
             });
         });
     </script>

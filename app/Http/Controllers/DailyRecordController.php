@@ -15,7 +15,7 @@ class DailyRecordController extends Controller
      */
     public function index()
     {
-        $dailyRecords = DailyRecord::with(['batch', 'stage'])->latest('record_date')->paginate(15); // Example pagination
+        $dailyRecords = DailyRecord::with(['batch', 'stage'])->latest('record_date')->orderBy('record_date', 'desc')->paginate(10); // Example pagination
         return view('daily-records.index', compact('dailyRecords'));
     }
 

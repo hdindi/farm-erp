@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Batch;
 use App\Models\BirdType;
 use App\Models\Breed;
+use App\Models\Stage; // Import the Stage model
+use App\Models\DailyRecord;
+use App\Models\FeedRecord; // Import the FeedRecord model
 use Illuminate\Http\Request;
 use Carbon\Carbon; // Make sure to import Carbon
 
@@ -109,15 +112,53 @@ class BatchController extends Controller
         // 2. Expected culling date (24 months after date_received)
         $expectedCullingDate = $dateReceived->copy()->addMonths(24)->format('Y-m-d');
 
+        // ✅ NEW: Find the most recent daily record for this batch
+        $lastRecord = DailyRecord::where('batch_id', $batch->id)
+            ->orderBy('record_date', 'desc')
+            ->first();
+
         return response()->json([
             'age_in_days'         => $ageInDays,
             'date_received'       => $dateReceived->format('Y-m-d'),
-            // ✅ NEW DATA being sent to the frontend
             'initial_population'  => $batch->initial_population,
             'bird_week'           => $ageInWeeks,
             'expected_culling_date' => $expectedCullingDate,
+            // ✅ NEW DATA being sent to the frontend
+            'current_population'  => $batch->current_population,
+            'last_record_date'    => $lastRecord ? Carbon::parse($lastRecord->record_date)->format('Y-m-d') : 'None',
         ]);
     }
+
+
+
+
+    public function getFeedDataForDailyRecord(DailyRecord $dailyRecord)
+    {
+        $batch = $dailyRecord->batch;
+        $hatchDate = Carbon::parse($batch->hatch_date);
+
+        // Calculate bird's age on the specific record_date
+        $ageInDays = $hatchDate->diffInDays(Carbon::parse($dailyRecord->record_date));
+
+        // Find the stage for that specific age
+        $stage = Stage::where('min_age_days', '<=', $ageInDays)
+            ->where('max_age_days', '>=', $ageInDays)
+            ->first();
+
+        // Calculate total feed already given on that day
+        $feedGivenToday = FeedRecord::where('daily_record_id', $dailyRecord->id)->sum('quantity_kg');
+
+        return response()->json([
+            'bird_count' => $dailyRecord->alive_count,
+            'age_in_days' => $ageInDays,
+            'stage_name' => $stage ? $stage->name : 'N/A',
+            // Example: Recommended feed per bird in grams (you can make this more dynamic)
+            'recommended_feed_grams' => $stage ? $stage->recommended_feed_grams : 120,
+            'feed_given_today_kg' => round($feedGivenToday, 2),
+        ]);
+    }
+
+
 
 
 }

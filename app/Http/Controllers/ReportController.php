@@ -54,57 +54,42 @@ class ReportController extends Controller
     /**
      * Display the Daily Egg Summary report.
      */
+    // In app/Http/Controllers/ReportController.php
+
     public function dailyEggSummary(Request $request)
     {
-        // Validate optional date filters
-        $request->validate([
-            'date_from' => 'nullable|date',
-            'date_to' => 'nullable|date|after_or_equal:date_from',
-        ]);
+        $dateFrom = $request->input('date_from', now()->subDays(29)->format('Y-m-d'));
+        $dateTo = $request->input('date_to', now()->format('Y-m-d'));
 
-        // Start query on the view model
-        $query = VDailyEggSummary::query();
+        $eggSummaries = VDailyEggSummary::whereBetween('record_date', [$dateFrom, $dateTo])
+            ->orderBy('record_date', 'asc') // Order ascending for the chart
+            ->get();
 
-        // Apply date filters based on request input
-        if ($request->filled('date_from')) {
-            $query->where('record_date', '>=', $request->date_from);
-        }
-        if ($request->filled('date_to')) {
-            $query->where('record_date', '<=', $request->date_to);
-        } else if (!$request->filled('date_from')) { // Apply default only if no dates are provided
-            // Default to last 30 days if no date range given
-            $query->where('record_date', '>=', Carbon::today()->subDays(29));
-        }
-        // If only date_from is provided, it will filter from that date onwards.
-        // If only date_to is provided, it will filter up to that date.
+        // Prepare data for the chart
+        $chartLabels = $eggSummaries->map(function ($summary) {
+            return Carbon::parse($summary->record_date)->format('M d');
+        });
 
-        // Get filtered data, ordered by date for consistency
-        $eggSummaries = $query->orderBy('record_date', 'asc')->get();
+        $chartEggData = $eggSummaries->pluck('total_eggs_collected');
 
-        // Prepare data specifically for the chart
-        $chartLabels = [];
-        $chartEggData = [];
-        // Ensure we have summaries before trying to create chart data
-        if ($eggSummaries->isNotEmpty()) {
-            // Pluck total eggs, keyed by the record_date
-            $chartData = $eggSummaries->pluck('total_eggs_collected', 'record_date');
+        // ✅ NEW: Calculate totals for the table footer
+        $totals = [
+            'total_collected' => $eggSummaries->sum('total_eggs_collected'),
+            'total_good'      => $eggSummaries->sum('good_eggs'),
+            'total_bad'       => $eggSummaries->sum('bad_eggs'),
+        ];
 
-            // Map the keys (dates) to the desired label format (e.g., "Apr 28")
-            $chartLabels = $chartData->keys()
-                ->map(fn($date) => Carbon::parse($date)->format('M d'))
-                ->toArray();
-            // Get the corresponding egg count values
-            $chartEggData = $chartData->values()->toArray();
-        }
+        // Sort for the view (most recent first)
+        $displaySummaries = $eggSummaries->sortByDesc('record_date');
 
-        // Pass both the full summary data (for the table) and
-        // the prepared chart data to the view
         return view('reports.daily-egg-summary', compact(
-            'eggSummaries',
+            'displaySummaries',
             'chartLabels',
-            'chartEggData'
+            'chartEggData',
+            'totals' // Pass totals to the view
         ));
     }
+
     /**
      * Display the Sales by Salesperson report.
      */
