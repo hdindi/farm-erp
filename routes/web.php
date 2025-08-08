@@ -68,8 +68,8 @@ Route::get('/', function () {
 Auth::routes(); // This handles routes defined in LoginController and RegisterController
 
 // Registration Routes
-Route::get('register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-Route::post('register', [RegisterController::class, 'register']);
+//Route::get('register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+//Route::post('register', [RegisterController::class, 'register']);
 
 
 // Authenticated Routes

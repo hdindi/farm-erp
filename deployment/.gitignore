@@ -1,0 +1,8 @@
+# Sensitive deployment files - never commit these
+*.env.production.*
+*infrastructure-details*
+backup-credentials.txt
+
+# Files with real passwords/secrets
+.env.production.harris.real
+backup.sh.real

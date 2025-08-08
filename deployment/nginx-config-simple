@@ -1,0 +1,100 @@
+server {
+    listen 80;
+    listen [::]:80;
+    server_name 128.199.60.244;
+    root /var/www/farm-erp/public;
+
+    add_header X-Frame-Options "SAMEORIGIN";
+    add_header X-Content-Type-Options "nosniff";
+
+    index index.php;
+
+    charset utf-8;
+
+    # Handle Laravel routes
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    # Optimize static files
+    location ~* \.(jpg|jpeg|png|gif|ico|css|js|woff|woff2|ttf|svg)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        access_log off;
+    }
+
+    # Security headers for assets
+    location /build/ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        access_log off;
+    }
+
+    location = /favicon.ico { 
+        access_log off; 
+        log_not_found off; 
+    }
+    
+    location = /robots.txt  { 
+        access_log off; 
+        log_not_found off; 
+    }
+
+    error_page 404 /index.php;
+
+    # PHP processing
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+        fastcgi_hide_header X-Powered-By;
+        
+        # Security settings
+        fastcgi_param HTTP_PROXY "";
+        fastcgi_param SERVER_NAME $http_host;
+    }
+
+    # Security: deny access to hidden files
+    location ~ /\.(?!well-known).* {
+        deny all;
+    }
+
+    # Security: deny access to sensitive files
+    location ~* \.(htaccess|htpasswd|ini|log|sh|sql|conf)$ {
+        deny all;
+    }
+
+    # Enable gzip compression
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1000;
+    gzip_proxied any;
+    gzip_comp_level 6;
+    gzip_types
+        application/atom+xml
+        application/geo+json
+        application/javascript
+        application/x-javascript
+        application/json
+        application/ld+json
+        application/manifest+json
+        application/rdf+xml
+        application/rss+xml
+        application/xhtml+xml
+        application/xml
+        font/eot
+        font/otf
+        font/ttf
+        image/svg+xml
+        text/css
+        text/javascript
+        text/plain
+        text/xml;
+
+    # Logging
+    access_log /var/log/nginx/farm-erp.access.log;
+    error_log /var/log/nginx/farm-erp.error.log;
+
+    # Client max body size (for file uploads)
+    client_max_body_size 10M;
+}
