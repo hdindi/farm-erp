@@ -1,0 +1,166 @@
+name: UAT Deployment
+
+on:
+  push:
+    branches: [ uat ]
+  pull_request:
+    branches: [ uat ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Test Suite
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: farm_erp_test
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+        ports:
+          - 3306:3306
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, pdo_mysql, dom, filter, gd, iconv, json, mbstring, pdo
+        
+    - name: Copy .env
+      run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+      
+    - name: Install Composer dependencies
+      run: composer install --optimize-autoloader --no-progress --prefer-dist
+      
+    - name: Generate application key
+      run: php artisan key:generate
+      
+    - name: Clear config cache
+      run: php artisan config:clear
+      
+    - name: Run database migrations
+      env:
+        DB_CONNECTION: mysql
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_DATABASE: farm_erp_test
+        DB_USERNAME: root
+        DB_PASSWORD: password
+      run: php artisan migrate --force
+      
+    - name: Run tests
+      env:
+        DB_CONNECTION: mysql
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_DATABASE: farm_erp_test
+        DB_USERNAME: root
+        DB_PASSWORD: password
+      run: php artisan test
+
+  deploy-uat:
+    runs-on: ubuntu-latest
+    name: Deploy to UAT
+    needs: test
+    if: github.ref == 'refs/heads/uat' && github.event_name == 'push'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Deploy to UAT server
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.UAT_HOST }}
+        username: ${{ secrets.UAT_USERNAME }}
+        key: ${{ secrets.UAT_SSH_KEY }}
+        port: ${{ secrets.UAT_PORT || 22 }}
+        script: |
+          set -e
+          
+          echo "🚀 Starting UAT deployment..."
+          
+          # Navigate to UAT directory
+          cd /var/www/farm-erp-uat
+          
+          # Create backup
+          backup_dir="/var/www/backups/farm-erp-uat-$(date +%Y%m%d_%H%M%S)"
+          sudo mkdir -p /var/www/backups
+          sudo cp -r /var/www/farm-erp-uat $backup_dir
+          echo "✅ Backup created at $backup_dir"
+          
+          # Enable maintenance mode
+          sudo -u www-data php artisan down --retry=60 --secret="uat-maintenance-secret" || true
+          
+          # Pull latest code
+          sudo git fetch origin
+          sudo git checkout uat
+          sudo git reset --hard origin/uat
+          echo "✅ Code updated"
+          
+          # Install/update dependencies
+          sudo -u www-data composer install --optimize-autoloader --no-dev --no-interaction
+          echo "✅ Dependencies updated"
+          
+          # Copy UAT environment file
+          sudo cp .env.uat .env
+          
+          # Generate app key if not set
+          sudo -u www-data php artisan key:generate --force
+          
+          # Clear all caches
+          sudo -u www-data php artisan config:clear
+          sudo -u www-data php artisan cache:clear
+          sudo -u www-data php artisan route:clear
+          sudo -u www-data php artisan view:clear
+          
+          # Run migrations
+          sudo -u www-data php artisan migrate --force
+          echo "✅ Database migrations completed"
+          
+          # Seed data if needed (optional)
+          # sudo -u www-data php artisan db:seed --force
+          
+          # Create storage link
+          sudo -u www-data php artisan storage:link --force || true
+          
+          # Set proper permissions
+          sudo chown -R www-data:www-data /var/www/farm-erp-uat
+          sudo chmod -R 755 /var/www/farm-erp-uat
+          sudo chmod -R 775 /var/www/farm-erp-uat/storage
+          sudo chmod -R 775 /var/www/farm-erp-uat/bootstrap/cache
+          echo "✅ Permissions set"
+          
+          # Optimize for production
+          sudo -u www-data php artisan config:cache
+          sudo -u www-data php artisan route:cache
+          sudo -u www-data php artisan view:cache
+          echo "✅ Application optimized"
+          
+          # Restart services
+          sudo systemctl reload php8.2-fpm
+          sudo systemctl reload nginx
+          echo "✅ Services restarted"
+          
+          # Disable maintenance mode
+          sudo -u www-data php artisan up
+          
+          echo "🎉 UAT deployment completed successfully!"
+          echo "🌐 UAT site: https://uat.kinjabi.farm"
+          
+          # Clean up old backups (keep last 5)
+          sudo find /var/www/backups -name "farm-erp-uat-*" -type d | sort | head -n -5 | xargs sudo rm -rf
+          
+    - name: Notify deployment status
+      if: always()
+      run: |
+        if [ "${{ job.status }}" == "success" ]; then
+          echo "✅ UAT deployment successful!"
+        else
+          echo "❌ UAT deployment failed!"
+        fi

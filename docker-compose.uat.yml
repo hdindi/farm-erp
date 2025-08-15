@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  app-uat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: farm-erp-uat
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+      - ./deployment/php-uat.ini:/usr/local/etc/php/conf.d/custom.ini
+    environment:
+      - APP_ENV=uat
+      - APP_DEBUG=true
+    networks:
+      - farm-erp-uat
+    depends_on:
+      - mysql-uat
+      - redis-uat
+
+  nginx-uat:
+    image: nginx:alpine
+    container_name: farm-erp-nginx-uat
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    volumes:
+      - ./:/var/www
+      - ./deployment/nginx-docker-uat.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - farm-erp-uat
+    depends_on:
+      - app-uat
+
+  mysql-uat:
+    image: mysql:8.0
+    container_name: farm-erp-mysql-uat
+    restart: unless-stopped
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_DATABASE: farm_erp_uat
+      MYSQL_ROOT_PASSWORD: uat_password
+      MYSQL_PASSWORD: uat_password
+      MYSQL_USER: farm_erp_uat
+    volumes:
+      - mysql-uat-data:/var/lib/mysql
+      - ./deployment/mysql-uat-init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - farm-erp-uat
+
+  redis-uat:
+    image: redis:alpine
+    container_name: farm-erp-redis-uat
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis-uat-data:/data
+    networks:
+      - farm-erp-uat
+
+  mailhog-uat:
+    image: mailhog/mailhog
+    container_name: farm-erp-mailhog-uat
+    restart: unless-stopped
+    ports:
+      - "8026:8025"  # Web UI
+      - "1026:1025"  # SMTP
+    networks:
+      - farm-erp-uat
+
+volumes:
+  mysql-uat-data:
+    driver: local
+  redis-uat-data:
+    driver: local
+
+networks:
+  farm-erp-uat:
+    driver: bridge
