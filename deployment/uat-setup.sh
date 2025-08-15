@@ -11,7 +11,7 @@ echo "🚀 Setting up UAT environment for Farm ERP..."
 UAT_DIR="/var/www/farm-erp-uat"
 NGINX_SITES_AVAILABLE="/etc/nginx/sites-available"
 NGINX_SITES_ENABLED="/etc/nginx/sites-enabled"
-REPO_URL="https://github.com/YOUR_USERNAME/farm-erp.git"  # Replace with your repo URL
+REPO_URL="git@github.com:hdindi/farm-erp.git"  # SSH URL for authentication
 DB_NAME="farm_erp_uat"
 
 # Colors for output
@@ -128,22 +128,22 @@ server {
     listen 80;
     server_name uat.kinjabi.farm;
     root $UAT_DIR/public;
-    
+
     index index.php index.html;
-    
+
     # UAT environment header
     add_header X-Environment "UAT" always;
     add_header X-Robots-Tag "noindex, nofollow" always;
-    
+
     # Security headers
     add_header X-Frame-Options "SAMEORIGIN" always;
     add_header X-XSS-Protection "1; mode=block" always;
     add_header X-Content-Type-Options "nosniff" always;
-    
+
     location / {
         try_files \$uri \$uri/ /index.php?\$query_string;
     }
-    
+
     location ~ \.php$ {
         fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
         fastcgi_index index.php;
@@ -151,16 +151,16 @@ server {
         include fastcgi_params;
         fastcgi_hide_header X-Powered-By;
     }
-    
+
     # Deny access to sensitive files
     location ~ /\.ht {
         deny all;
     }
-    
+
     location ~ /\.env {
         deny all;
     }
-    
+
     # Block access to version control
     location ~ /\.git {
         deny all;
