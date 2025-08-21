@@ -92,23 +92,34 @@ chmod -R 775 "$UAT_DIR/bootstrap/cache"
 print_status "Creating storage link..."
 sudo -u www-data php artisan storage:link
 
-# 8. Set up database
-print_status "Setting up UAT database..."
-read -p "Enter MySQL root password: " -s mysql_password
+# 8. Set up managed database connection
+print_status "Setting up UAT database connection..."
+echo "Using Digital Ocean managed database..."
+
+# Get managed database connection details
+read -p "Enter managed database host (from DO portal): " db_host
+read -p "Enter managed database port (default 25060): " db_port
+db_port=${db_port:-25060}
+read -p "Enter managed database username (usually doadmin): " db_username
+db_username=${db_username:-doadmin}
+read -p "Enter managed database password: " -s db_password
 echo
 
-mysql -u root -p"$mysql_password" <<EOF
-CREATE DATABASE IF NOT EXISTS $DB_NAME;
-GRANT ALL PRIVILEGES ON $DB_NAME.* TO 'root'@'localhost';
-FLUSH PRIVILEGES;
-EOF
-
-print_status "Database created successfully!"
-
-# Update .env with database password
-read -p "Enter database password for UAT environment: " -s db_password
-echo
+# Update .env with managed database credentials
+sed -i "s/DB_HOST=.*/DB_HOST=$db_host/" .env
+sed -i "s/DB_PORT=.*/DB_PORT=$db_port/" .env
+sed -i "s/DB_USERNAME=.*/DB_USERNAME=$db_username/" .env
 sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=$db_password/" .env
+sed -i "s/DB_DATABASE=.*/DB_DATABASE=$DB_NAME/" .env
+
+print_status "Database connection configured!"
+print_warning "Please ensure the database '$DB_NAME' exists in your managed cluster:"
+echo "1. Go to Digital Ocean → Databases → Your Cluster"
+echo "2. Click 'Users & Databases' tab"
+echo "3. Create database: $DB_NAME"
+echo "4. Or connect via MySQL client and run: CREATE DATABASE $DB_NAME;"
+echo
+read -p "Press Enter when the database is created and you're ready to continue..."
 
 # 9. Run migrations
 print_status "Running database migrations..."
