@@ -121,11 +121,19 @@ jobs:
           sudo cp .env.uat .env
           
           # Update database configuration for managed database
+          # First check if we can resolve the database host
+          echo "Testing database connectivity..."
+          nslookup dbaas-db-2779280-do-user-24512826-0.a.db.ondigitalocean.com || echo "DNS resolution failed"
+          
           sudo sed -i 's/DB_HOST=.*/DB_HOST=dbaas-db-2779280-do-user-24512826-0.a.db.ondigitalocean.com/' .env
           sudo sed -i 's/DB_PORT=.*/DB_PORT=25060/' .env
           sudo sed -i 's/DB_USERNAME=.*/DB_USERNAME=doadmin/' .env
           sudo sed -i 's/DB_DATABASE=.*/DB_DATABASE=farm_erp_uat/' .env
           sudo sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=$UAT_DB_PASSWORD/" .env
+          
+          # Test database connection
+          echo "Testing database connection..."
+          sudo -u www-data php artisan tinker --execute="DB::connection()->getPdo(); echo 'Database connected successfully';" || echo "Database connection failed"
           
           # Generate app key if not set
           sudo -u www-data php artisan key:generate --force
