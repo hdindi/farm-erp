@@ -80,7 +80,10 @@ jobs:
         username: ${{ secrets.UAT_USERNAME }}
         key: ${{ secrets.UAT_SSH_KEY }}
         port: ${{ secrets.UAT_PORT || 22 }}
-        script: |
+        envs: UAT_DB_PASSWORD
+      env:
+        UAT_DB_PASSWORD: ${{ secrets.UAT_DB_PASSWORD }}
+      script: |
           set -e
           
           echo "🚀 Starting UAT deployment..."
@@ -116,6 +119,13 @@ jobs:
           
           # Copy UAT environment file
           sudo cp .env.uat .env
+          
+          # Update database configuration for managed database
+          sudo sed -i 's/DB_HOST=.*/DB_HOST=dbaas-db-2779280-do-user-24512826-0.a.db.ondigitalocean.com/' .env
+          sudo sed -i 's/DB_PORT=.*/DB_PORT=25060/' .env
+          sudo sed -i 's/DB_USERNAME=.*/DB_USERNAME=doadmin/' .env
+          sudo sed -i 's/DB_DATABASE=.*/DB_DATABASE=farm_erp_uat/' .env
+          sudo sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=$UAT_DB_PASSWORD/" .env
           
           # Generate app key if not set
           sudo -u www-data php artisan key:generate --force
