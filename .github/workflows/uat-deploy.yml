@@ -75,15 +75,15 @@ jobs:
       
     - name: Deploy to UAT server
       uses: appleboy/ssh-action@v1.0.3
+      env:
+        UAT_DB_PASSWORD: ${{ secrets.UAT_DB_PASSWORD }}
       with:
         host: ${{ secrets.UAT_HOST }}
         username: ${{ secrets.UAT_USERNAME }}
         key: ${{ secrets.UAT_SSH_KEY }}
         port: ${{ secrets.UAT_PORT || 22 }}
         envs: UAT_DB_PASSWORD
-      env:
-        UAT_DB_PASSWORD: ${{ secrets.UAT_DB_PASSWORD }}
-      script: |
+        script: |
           set -e
           
           echo "🚀 Starting UAT deployment..."
