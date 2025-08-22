@@ -101,6 +101,9 @@ jobs:
           sudo git config --global --add safe.directory /var/www/farm-erp-uat
           sudo chown -R root:root /var/www/farm-erp-uat/.git
           
+          # Configure git to use HTTPS instead of SSH for pulling
+          sudo git remote set-url origin https://github.com/hdindi/farm-erp.git
+          
           # Pull latest code
           sudo git fetch origin
           sudo git checkout uat
