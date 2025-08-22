@@ -145,17 +145,17 @@ jobs:
           # Skip the database connection test to avoid psysh issues
           echo "Database configuration applied successfully"
           
-          # Fix .env file format and ensure proper line endings
-          sudo sed -i 's/DEBUGBAR_ENABLED=trueAPP_KEY=/DEBUGBAR_ENABLED=true\nAPP_KEY=/' .env
+          # Clean up any malformed .env entries and ensure single APP_KEY
+          sudo sed -i 's/DEBUGBAR_ENABLED=trueAPP_KEY=/DEBUGBAR_ENABLED=true/' .env
           sudo sed -i '/^APP_KEY=/d' .env
-          echo "APP_KEY=" | sudo tee -a .env
+          echo "APP_KEY=" >> .env
           
           # Generate app key
           sudo -u www-data php artisan key:generate --force
           
-          # Verify .env file format
-          echo "Checking .env file format..."
-          tail -5 .env
+          # Verify only one APP_KEY exists
+          echo "APP_KEY count: $(grep -c '^APP_KEY=' .env)"
+          echo "Current APP_KEY: $(grep '^APP_KEY=' .env)"
           
           # Clear all caches
           sudo -u www-data php artisan config:clear
