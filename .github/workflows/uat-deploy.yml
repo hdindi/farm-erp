@@ -167,6 +167,10 @@ jobs:
           
           echo "✅ Clean .env file created"
           
+          # Set proper ownership and permissions for .env file
+          sudo chown www-data:www-data .env
+          sudo chmod 644 .env
+          
           # Generate application key
           sudo -u www-data php artisan key:generate --force
           
