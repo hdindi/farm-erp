@@ -120,16 +120,27 @@ jobs:
           # Copy UAT environment file
           sudo cp .env.uat .env
           
-          # Update database configuration for managed database
-          # First check if we can resolve the database host
-          echo "Testing database connectivity..."
-          nslookup dbaas-db-2779280-do-user-24512826-0.a.db.ondigitalocean.com || echo "DNS resolution failed"
+          # Copy production database settings and modify for UAT
+          echo "Copying production database configuration..."
+          sudo cp /var/www/farm-erp/.env .env.production.backup
           
-          sudo sed -i 's/DB_HOST=.*/DB_HOST=dbaas-db-2779280-do-user-24512826-0.a.db.ondigitalocean.com/' .env
-          sudo sed -i 's/DB_PORT=.*/DB_PORT=25060/' .env
-          sudo sed -i 's/DB_USERNAME=.*/DB_USERNAME=doadmin/' .env
+          # Extract production DB settings and modify for UAT
+          DB_HOST=$(grep "^DB_HOST=" /var/www/farm-erp/.env | cut -d'=' -f2)
+          DB_PORT=$(grep "^DB_PORT=" /var/www/farm-erp/.env | cut -d'=' -f2)
+          DB_USERNAME=$(grep "^DB_USERNAME=" /var/www/farm-erp/.env | cut -d'=' -f2)
+          
+          echo "Using production DB host: $DB_HOST"
+          
+          sudo sed -i "s/DB_HOST=.*/DB_HOST=$DB_HOST/" .env
+          sudo sed -i "s/DB_PORT=.*/DB_PORT=$DB_PORT/" .env
+          sudo sed -i "s/DB_USERNAME=.*/DB_USERNAME=$DB_USERNAME/" .env
           sudo sed -i 's/DB_DATABASE=.*/DB_DATABASE=farm_erp_uat/' .env
           sudo sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=$UAT_DB_PASSWORD/" .env
+          
+          echo "Database configuration updated:"
+          echo "Host: $DB_HOST"
+          echo "Port: $DB_PORT"
+          echo "Username: $DB_USERNAME"
           
           # Test database connection
           echo "Testing database connection..."
