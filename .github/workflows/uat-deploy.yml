@@ -145,7 +145,11 @@ jobs:
           # Skip the database connection test to avoid psysh issues
           echo "Database configuration applied successfully"
           
-          # Generate app key if not set
+          # Ensure clean APP_KEY before generation
+          sudo sed -i '/^APP_KEY=/d' .env
+          echo "APP_KEY=" | sudo tee -a .env
+          
+          # Generate app key
           sudo -u www-data php artisan key:generate --force
           
           # Clear all caches
