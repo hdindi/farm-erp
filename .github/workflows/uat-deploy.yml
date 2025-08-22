@@ -117,45 +117,97 @@ jobs:
           sudo -u www-data composer install --optimize-autoloader --no-dev --no-interaction
           echo "✅ Dependencies updated"
           
-          # Copy UAT environment file
-          sudo cp .env.uat .env
-          
-          # Copy production database settings and modify for UAT
-          echo "Copying production database configuration..."
-          sudo cp /var/www/farm-erp/.env .env.production.backup
-          
-          # Extract production DB settings and modify for UAT
+          # Extract production database settings
+          echo "Getting production database configuration..."
           DB_HOST=$(grep "^DB_HOST=" /var/www/farm-erp/.env | cut -d'=' -f2)
           DB_PORT=$(grep "^DB_PORT=" /var/www/farm-erp/.env | cut -d'=' -f2)
           DB_USERNAME=$(grep "^DB_USERNAME=" /var/www/farm-erp/.env | cut -d'=' -f2)
           
-          echo "Using production DB host: $DB_HOST"
+          echo "Using production DB settings - Host: $DB_HOST, Port: $DB_PORT, User: $DB_USERNAME"
           
-          sudo sed -i "s/DB_HOST=.*/DB_HOST=$DB_HOST/" .env
-          sudo sed -i "s/DB_PORT=.*/DB_PORT=$DB_PORT/" .env
-          sudo sed -i "s/DB_USERNAME=.*/DB_USERNAME=$DB_USERNAME/" .env
-          sudo sed -i 's/DB_DATABASE=.*/DB_DATABASE=farm_erp_uat/' .env
-          sudo sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=$UAT_DB_PASSWORD/" .env
+          # Create a clean, properly formatted .env file
+          echo "Creating clean .env file..."
+          sudo tee .env > /dev/null << EOF
+APP_NAME="Farm ERP - UAT"
+APP_ENV=uat
+APP_KEY=
+APP_DEBUG=true
+APP_URL=https://uat.kinjabi.farm
+
+APP_LOCALE=en
+APP_FALLBACK_LOCALE=en
+APP_FAKER_LOCALE=en_US
+
+APP_MAINTENANCE_DRIVER=file
+
+PHP_CLI_SERVER_WORKERS=4
+
+BCRYPT_ROUNDS=12
+
+LOG_CHANNEL=stack
+LOG_STACK=single
+LOG_DEPRECATIONS_CHANNEL=null
+LOG_LEVEL=debug
+
+DB_CONNECTION=mysql
+DB_HOST=$DB_HOST
+DB_PORT=$DB_PORT
+DB_DATABASE=farm_erp_uat
+DB_USERNAME=$DB_USERNAME
+DB_PASSWORD=$UAT_DB_PASSWORD
+
+SESSION_DRIVER=database
+SESSION_LIFETIME=120
+SESSION_ENCRYPT=false
+SESSION_PATH=/
+SESSION_DOMAIN=.kinjabi.farm
+
+BROADCAST_CONNECTION=log
+FILESYSTEM_DISK=local
+QUEUE_CONNECTION=database
+
+CACHE_STORE=database
+CACHE_PREFIX=uat_
+
+MEMCACHED_HOST=127.0.0.1
+
+REDIS_CLIENT=phpredis
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+
+MAIL_MAILER=log
+MAIL_HOST=127.0.0.1
+MAIL_PORT=2525
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_ENCRYPTION=null
+MAIL_FROM_ADDRESS="uat@kinjabi.farm"
+MAIL_FROM_NAME="Farm ERP - UAT"
+
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_DEFAULT_REGION=us-east-1
+AWS_BUCKET=
+AWS_USE_PATH_STYLE_ENDPOINT=false
+
+VITE_APP_NAME="Farm ERP - UAT"
+
+TELESCOPE_ENABLED=true
+DEBUGBAR_ENABLED=true
+EOF
           
-          echo "Database configuration updated:"
-          echo "Host: $DB_HOST"
-          echo "Port: $DB_PORT"
-          echo "Username: $DB_USERNAME"
+          echo "✅ Clean .env file created"
           
-          # Skip the database connection test to avoid psysh issues
-          echo "Database configuration applied successfully"
-          
-          # Clean up any malformed .env entries and ensure single APP_KEY
-          sudo sed -i 's/DEBUGBAR_ENABLED=trueAPP_KEY=/DEBUGBAR_ENABLED=true/' .env
-          sudo sed -i '/^APP_KEY=/d' .env
-          echo "APP_KEY=" >> .env
-          
-          # Generate app key
+          # Generate application key
           sudo -u www-data php artisan key:generate --force
           
-          # Verify only one APP_KEY exists
-          echo "APP_KEY count: $(grep -c '^APP_KEY=' .env)"
-          echo "Current APP_KEY: $(grep '^APP_KEY=' .env)"
+          # Verify the configuration
+          echo "=== Environment Configuration ==="
+          echo "APP_KEY: $(grep '^APP_KEY=' .env | cut -c1-20)..."
+          echo "DB_HOST: $DB_HOST"
+          echo "DB_DATABASE: farm_erp_uat"
+          echo "================================="
           
           # Clear all caches
           sudo -u www-data php artisan config:clear
