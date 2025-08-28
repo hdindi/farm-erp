@@ -43,7 +43,7 @@ class VwBatchVaccinationDetails extends Model
      * @var array
      */
     protected $casts = [
-        'record_date' => 'date', // From the daily record join
+        'record_date' => 'date',
         'birds_vaccinated' => 'integer',
         'next_due_date' => 'date',
     ];

@@ -20,6 +20,10 @@ class VwBatchSummary extends Model
 
     // Define casts if needed for types (e.g., dates, numbers)
     protected $casts = [
+        'initial_population' => 'integer',
+        'current_alive_count' => 'integer',
+        'total_deaths' => 'integer',
+        'total_culls' => 'integer',
         'reduction_rate_percent' => 'decimal:2',
         'date_received' => 'date',
         'hatch_date' => 'date',
