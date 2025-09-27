@@ -12,7 +12,7 @@ class FeedTypeFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->unique()->words(2, true) . ' Feed',
+            'name' => $this->faker->unique()->words(2, true).' Feed',
             'description' => $this->faker->sentence,
         ];
     }

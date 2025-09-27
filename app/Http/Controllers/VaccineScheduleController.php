@@ -25,6 +25,7 @@ class VaccineScheduleController extends Controller
         $batches = Batch::where('status', 'active')->get();
         $vaccines = Vaccine::all();
         $vaccinationLogs = VaccinationLog::all();
+
         return view('vaccine-schedule.create', compact('batches', 'vaccines', 'vaccinationLogs'));
     }
 
@@ -58,7 +59,8 @@ class VaccineScheduleController extends Controller
                 ->with('success', 'Vaccine schedule created successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withInput()->with('error', 'Failed to create vaccine schedule: ' . $e->getMessage());
+
+            return back()->withInput()->with('error', 'Failed to create vaccine schedule: '.$e->getMessage());
         }
     }
 
@@ -72,6 +74,7 @@ class VaccineScheduleController extends Controller
         $batches = Batch::where('status', 'active')->get();
         $vaccines = Vaccine::all();
         $vaccinationLogs = VaccinationLog::all();
+
         return view('vaccine-schedule.edit', compact('vaccineSchedule', 'batches', 'vaccines', 'vaccinationLogs'));
     }
 
@@ -105,7 +108,8 @@ class VaccineScheduleController extends Controller
                 ->with('success', 'Vaccine schedule updated successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withInput()->with('error', 'Failed to update vaccine schedule: ' . $e->getMessage());
+
+            return back()->withInput()->with('error', 'Failed to update vaccine schedule: '.$e->getMessage());
         }
     }
 
@@ -113,10 +117,11 @@ class VaccineScheduleController extends Controller
     {
         try {
             $vaccineSchedule->delete();
+
             return redirect()->route('vaccine-schedule.index')
                 ->with('success', 'Vaccine schedule deleted successfully.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to delete vaccine schedule: ' . $e->getMessage());
+            return back()->with('error', 'Failed to delete vaccine schedule: '.$e->getMessage());
         }
     }
 
@@ -148,11 +153,10 @@ class VaccineScheduleController extends Controller
                 ->with('success', 'Vaccine schedule marked as administered successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Failed to mark as administered: ' . $e->getMessage());
+
+            return back()->with('error', 'Failed to mark as administered: '.$e->getMessage());
         }
     }
-
-
 
     // Add these methods to your VaccineScheduleController
 
@@ -162,12 +166,12 @@ class VaccineScheduleController extends Controller
     public function timetable()
     {
         // Get all upcoming vaccine schedules grouped by batch
-        $batches = Batch::with(['vaccineSchedules' => function($query) {
+        $batches = Batch::with(['vaccineSchedules' => function ($query) {
             $query->where('date_due', '>=', now())
                 ->orderBy('date_due')
                 ->with('vaccine');
         }])
-            ->whereHas('vaccineSchedules', function($query) {
+            ->whereHas('vaccineSchedules', function ($query) {
                 $query->where('date_due', '>=', now());
             })
             ->where('status', 'active')
@@ -187,7 +191,7 @@ class VaccineScheduleController extends Controller
             ->get()
             ->map(function ($schedule) {
                 return [
-                    'title' => $schedule->vaccine->name . ' - ' . $schedule->batch->batch_code,
+                    'title' => $schedule->vaccine->name.' - '.$schedule->batch->batch_code,
                     'start' => $schedule->date_due,
                     'end' => $schedule->date_due,
                     'url' => route('vaccine-schedule.show', $schedule->id),
@@ -242,6 +246,4 @@ class VaccineScheduleController extends Controller
             default => '#17a2b8',        // blue (for scheduled)
         };
     }
-
-
 }

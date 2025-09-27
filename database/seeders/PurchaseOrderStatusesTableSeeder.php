@@ -1,5 +1,7 @@
 <?php
+
 // database/seeders/PurchaseOrderStatusesTableSeeder.php
+
 namespace Database\Seeders;
 
 use App\Models\PurchaseOrderStatus;

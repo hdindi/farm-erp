@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\DailyRecord;
-use App\Models\Batch; // Required for batch_id
+use App\Models\Batch;
+use App\Models\DailyRecord; // Required for batch_id
 use App\Models\Stage; // Required for stage_id
 use Illuminate\Database\Eloquent\Factories\Factory;
 

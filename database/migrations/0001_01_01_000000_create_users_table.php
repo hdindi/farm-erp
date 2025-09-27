@@ -15,7 +15,7 @@ return new class extends Migration
     public function up(): void
     {
         // Check if the 'users' table does NOT already exist
-        if (!Schema::hasTable('users')) {
+        if (! Schema::hasTable('users')) {
             Schema::create('users', function (Blueprint $table) {
                 $table->id();
                 $table->string('name');
@@ -34,11 +34,11 @@ return new class extends Migration
             // This block ensures the columns are added if missing.
             // You can remove this 'else' block if you ALWAYS run migrate:fresh
             Schema::table('users', function (Blueprint $table) {
-                if (!Schema::hasColumn('users', 'phone_number')) {
+                if (! Schema::hasColumn('users', 'phone_number')) {
                     // Ensure position matches the create block if desired (e.g., ->after('email'))
                     $table->string('phone_number', 20)->nullable()->unique()->after('email');
                 }
-                if (!Schema::hasColumn('users', 'is_active')) {
+                if (! Schema::hasColumn('users', 'is_active')) {
                     // Ensure position matches the create block if desired (e.g., ->after('remember_token'))
                     $table->boolean('is_active')->default(true)->after('remember_token');
                 }
@@ -46,7 +46,7 @@ return new class extends Migration
         }
 
         // Keep these separate as they are independent tables
-        if (!Schema::hasTable('password_reset_tokens')) {
+        if (! Schema::hasTable('password_reset_tokens')) {
             Schema::create('password_reset_tokens', function (Blueprint $table) {
                 $table->string('email')->primary();
                 $table->string('token');
@@ -54,7 +54,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('sessions')) {
+        if (! Schema::hasTable('sessions')) {
             Schema::create('sessions', function (Blueprint $table) {
                 $table->string('id')->primary();
                 $table->foreignId('user_id')->nullable()->index();
@@ -65,6 +65,7 @@ return new class extends Migration
             });
         }
     }
+
     /**
      * Reverse the migrations.
      */

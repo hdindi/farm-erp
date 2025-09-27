@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+
 // Removed HasMany relationship for SalesPrice as it was removed from sales_prices table
 // use Illuminate\Database\Eloquent\Relations\HasMany;
 

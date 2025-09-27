@@ -10,6 +10,7 @@ class SalesUnitController extends Controller
     public function index()
     {
         $units = SalesUnit::latest()->paginate(10);
+
         return view('sales-units.index', compact('units'));
     }
 

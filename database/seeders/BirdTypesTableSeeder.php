@@ -1,5 +1,7 @@
 <?php
+
 // database/seeders/BirdTypesTableSeeder.php
+
 namespace Database\Seeders;
 
 use App\Models\BirdType;

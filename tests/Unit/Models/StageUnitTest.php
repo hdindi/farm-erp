@@ -2,14 +2,14 @@
 
 namespace Tests\Unit\Models; // Ensure this namespace matches your directory structure
 
-use Tests\TestCase;
-use App\Models\Stage;
-use App\Models\DailyRecord;
-use App\Models\Batch;        // Dependency for DailyRecord
-use App\Models\BirdType;     // Dependency for Batch
-use App\Models\Breed;        // Dependency for Batch
+use App\Models\Batch;
+use App\Models\BirdType;
+use App\Models\Breed;
+use App\Models\DailyRecord;        // Dependency for DailyRecord
+use App\Models\Stage;     // Dependency for Batch
+use Illuminate\Database\Eloquent\Relations\HasMany;        // Dependency for Batch
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Tests\TestCase;
 
 class StageUnitTest extends TestCase
 {
@@ -17,8 +17,6 @@ class StageUnitTest extends TestCase
 
     /**
      * Test if a Stage can be created with valid attributes.
-     *
-     * @return void
      */
     public function test_stage_can_be_created(): void
     {
@@ -41,12 +39,10 @@ class StageUnitTest extends TestCase
 
     /**
      * Test the fillable attributes of the Stage model.
-     *
-     * @return void
      */
     public function test_stage_has_correct_fillable_attributes(): void
     {
-        $stage = new Stage();
+        $stage = new Stage;
         // These should match the $fillable array in your App\Models\Stage model
         $expectedFillable = [
             'name',
@@ -60,8 +56,6 @@ class StageUnitTest extends TestCase
 
     /**
      * Test attribute casting for the Stage model.
-     *
-     * @return void
      */
     public function test_stage_attribute_casting(): void
     {
@@ -80,12 +74,9 @@ class StageUnitTest extends TestCase
         $this->assertIsInt($retrievedStage->target_weight_grams);
     }
 
-
     /**
      * Test the 'dailyRecords' relationship.
      * A Stage can have many DailyRecords.
-     *
-     * @return void
      */
     public function test_stage_has_many_daily_records_relationship(): void
     {
@@ -117,7 +108,6 @@ class StageUnitTest extends TestCase
             'batch_id' => $batch->id,
         ]);
 
-
         // Assertions
         $this->assertInstanceOf(HasMany::class, $stage->dailyRecords());
         $this->assertCount(2, $stage->dailyRecords); // Access the collection
@@ -132,8 +122,6 @@ class StageUnitTest extends TestCase
      * but if there are model-level constraints or accessors/mutators ensuring this,
      * you could test parts of it here. For now, we'll assume DB constraint or controller validation.
      * The CHECK constraint `max_age_days >= min_age_days` is tested during migration.
-     *
-     * @return void
      */
     // public function test_stage_age_range_logic()
     // {
@@ -142,13 +130,11 @@ class StageUnitTest extends TestCase
     //     // For example, if you had a mutator or a save event listener.
     // }
 
-
-
     public function it_validates_age_range_boundaries(): void
     {
         $stage = Stage::factory()->create([
             'min_age_days' => 1,
-            'max_age_days' => 28
+            'max_age_days' => 28,
         ]);
 
         $this->assertTrue($stage->max_age_days >= $stage->min_age_days);
@@ -164,8 +150,7 @@ class StageUnitTest extends TestCase
         Stage::create([
             'name' => 'Invalid Stage',
             'min_age_days' => -1,
-            'max_age_days' => 28
+            'max_age_days' => 28,
         ]);
     }
-
 }

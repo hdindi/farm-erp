@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers; // Adjust namespace if needed
 
-use App\Models\ModulePermission;
 use App\Models\Module;
+use App\Models\ModulePermission;
 use App\Models\Permission;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -19,6 +19,7 @@ class ModulePermissionController extends Controller
         $modulePermissions = ModulePermission::with(['module', 'permission'])
             ->orderBy('module_id')->orderBy('permission_id')
             ->paginate(20);
+
         return view('module-permissions.index', compact('modulePermissions'));
     }
 
@@ -29,6 +30,7 @@ class ModulePermissionController extends Controller
     {
         $modules = Module::where('is_active', true)->orderBy('name')->pluck('name', 'id');
         $permissions = Permission::where('is_active', true)->orderBy('name')->pluck('name', 'id');
+
         return view('module-permissions.create', compact('modules', 'permissions'));
     }
 
@@ -45,12 +47,12 @@ class ModulePermissionController extends Controller
                 Rule::unique('module_permissions')->where(function ($query) use ($request) {
                     return $query->where('module_id', $request->module_id)
                         ->where('permission_id', $request->permission_id);
-                })
+                }),
             ],
             'permission_id' => 'required|exists:permissions,id',
             'is_active' => 'required|boolean',
         ], [
-            'module_id.unique' => 'This permission is already assigned to this module.'
+            'module_id.unique' => 'This permission is already assigned to this module.',
         ]);
 
         ModulePermission::create($validated);
@@ -65,6 +67,7 @@ class ModulePermissionController extends Controller
     public function show(ModulePermission $modulePermission)
     {
         $modulePermission->load(['module', 'permission', 'roles']); // Load related data
+
         return view('module-permissions.show', compact('modulePermission'));
     }
 
@@ -75,6 +78,7 @@ class ModulePermissionController extends Controller
     {
         $modules = Module::where('is_active', true)->orderBy('name')->pluck('name', 'id');
         $permissions = Permission::where('is_active', true)->orderBy('name')->pluck('name', 'id');
+
         return view('module-permissions.edit', compact('modulePermission', 'modules', 'permissions'));
     }
 
@@ -91,12 +95,12 @@ class ModulePermissionController extends Controller
                 Rule::unique('module_permissions')->where(function ($query) use ($request) {
                     return $query->where('module_id', $request->module_id)
                         ->where('permission_id', $request->permission_id);
-                })->ignore($modulePermission->id)
+                })->ignore($modulePermission->id),
             ],
             'permission_id' => 'required|exists:permissions,id',
             'is_active' => 'required|boolean',
         ], [
-            'module_id.unique' => 'This permission is already assigned to this module.'
+            'module_id.unique' => 'This permission is already assigned to this module.',
         ]);
 
         $modulePermission->update($validated);
@@ -114,10 +118,12 @@ class ModulePermissionController extends Controller
             // Detach from roles before deleting the link itself
             $modulePermission->roles()->detach();
             $modulePermission->delete();
+
             return redirect()->route('module-permissions.index')
                 ->with('success', 'Module permission link deleted successfully.');
         } catch (\Exception $e) {
-            \Log::error("Error deleting module permission ID {$modulePermission->id}: " . $e->getMessage());
+            \Log::error("Error deleting module permission ID {$modulePermission->id}: ".$e->getMessage());
+
             return redirect()->route('module-permissions.index')
                 ->with('error', 'Failed to delete module permission link. Check logs.');
         }

@@ -10,6 +10,7 @@ class PurchaseUnitController extends Controller
     public function index()
     {
         $units = PurchaseUnit::latest()->paginate(10);
+
         return view('purchase-units.index', compact('units'));
     }
 

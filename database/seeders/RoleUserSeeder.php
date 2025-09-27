@@ -2,10 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
+use App\Models\Role;
 use App\Models\User; // Import User model
-use App\Models\Role; // Import Role model
+use Illuminate\Database\Seeder; // Import Role model
 use Illuminate\Support\Facades\DB; // Import DB facade for direct manipulation if needed
 use Illuminate\Support\Facades\Log; // Optional: For logging errors
 
@@ -43,16 +42,16 @@ class RoleUserSeeder extends Seeder
             $adminUser->roles()->attach($adminRole->id);
             $this->command->info("Attached 'Admin' role to {$adminUser->name}");
         } else {
-            Log::warning("RoleUserSeeder: Could not find Admin user or Admin role.");
-            $this->command->warn("RoleUserSeeder: Could not find Admin user or Admin role.");
+            Log::warning('RoleUserSeeder: Could not find Admin user or Admin role.');
+            $this->command->warn('RoleUserSeeder: Could not find Admin user or Admin role.');
         }
 
         if ($managerUser && $managerRole) {
             $managerUser->roles()->attach($managerRole->id);
             $this->command->info("Attached 'Manager' role to {$managerUser->name}");
         } else {
-            Log::warning("RoleUserSeeder: Could not find Manager user or Manager role.");
-            $this->command->warn("RoleUserSeeder: Could not find Manager user or Manager role.");
+            Log::warning('RoleUserSeeder: Could not find Manager user or Manager role.');
+            $this->command->warn('RoleUserSeeder: Could not find Manager user or Manager role.');
         }
 
         // Assigning 'User' role as an example to others
@@ -60,24 +59,24 @@ class RoleUserSeeder extends Seeder
             $vetUser->roles()->attach($userRole->id);
             $this->command->info("Attached 'User' role to {$vetUser->name}");
         } else {
-            Log::warning("RoleUserSeeder: Could not find Vet user or User role.");
-            $this->command->warn("RoleUserSeeder: Could not find Vet user or User role.");
+            Log::warning('RoleUserSeeder: Could not find Vet user or User role.');
+            $this->command->warn('RoleUserSeeder: Could not find Vet user or User role.');
         }
 
         if ($salesUser && $userRole) {
             $salesUser->roles()->attach($userRole->id);
             $this->command->info("Attached 'User' role to {$salesUser->name}");
         } else {
-            Log::warning("RoleUserSeeder: Could not find Sales user or User role.");
-            $this->command->warn("RoleUserSeeder: Could not find Sales user or User role.");
+            Log::warning('RoleUserSeeder: Could not find Sales user or User role.');
+            $this->command->warn('RoleUserSeeder: Could not find Sales user or User role.');
         }
 
         if ($harrisUser && $adminRole) { // Assigning Admin role to Harris Dindi as an example
             $harrisUser->roles()->attach($adminRole->id);
             $this->command->info("Attached 'Admin' role to {$harrisUser->name}");
         } else {
-            Log::warning("RoleUserSeeder: Could not find Harris Dindi user or required role.");
-            $this->command->warn("RoleUserSeeder: Could not find Harris Dindi user or required role.");
+            Log::warning('RoleUserSeeder: Could not find Harris Dindi user or required role.');
+            $this->command->warn('RoleUserSeeder: Could not find Harris Dindi user or required role.');
         }
 
         // You can add more assignments here for other users/roles

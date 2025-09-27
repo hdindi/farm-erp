@@ -21,12 +21,13 @@ class VaccinationLogController extends Controller
     public function create()
     {
         $dailyRecords = DailyRecord::with('batch')
-            ->whereHas('batch', function($query) {
+            ->whereHas('batch', function ($query) {
                 $query->where('status', 'active');
             })
             ->get();
 
         $vaccines = Vaccine::all();
+
         return view('vaccination-logs.create', compact('dailyRecords', 'vaccines'));
     }
 
@@ -45,7 +46,7 @@ class VaccinationLogController extends Controller
         $dailyRecord = DailyRecord::find($validated['daily_record_id']);
         if ($validated['birds_vaccinated'] > $dailyRecord->alive_count) {
             return back()->withErrors([
-                'birds_vaccinated' => 'Number of birds vaccinated cannot exceed alive count.'
+                'birds_vaccinated' => 'Number of birds vaccinated cannot exceed alive count.',
             ])->withInput();
         }
 
@@ -58,18 +59,20 @@ class VaccinationLogController extends Controller
     public function show(VaccinationLog $vaccinationLog)
     {
         $vaccinationLog->load(['dailyRecord.batch', 'vaccine']);
+
         return view('vaccination-logs.show', compact('vaccinationLog'));
     }
 
     public function edit(VaccinationLog $vaccinationLog)
     {
         $dailyRecords = DailyRecord::with('batch')
-            ->whereHas('batch', function($query) {
+            ->whereHas('batch', function ($query) {
                 $query->where('status', 'active');
             })
             ->get();
 
         $vaccines = Vaccine::all();
+
         return view('vaccination-logs.edit', compact('vaccinationLog', 'dailyRecords', 'vaccines'));
     }
 
@@ -88,7 +91,7 @@ class VaccinationLogController extends Controller
         $dailyRecord = DailyRecord::find($validated['daily_record_id']);
         if ($validated['birds_vaccinated'] > $dailyRecord->alive_count) {
             return back()->withErrors([
-                'birds_vaccinated' => 'Number of birds vaccinated cannot exceed alive count.'
+                'birds_vaccinated' => 'Number of birds vaccinated cannot exceed alive count.',
             ])->withInput();
         }
 

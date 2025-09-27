@@ -17,6 +17,7 @@ class EggProductionTableSeeder extends Seeder
 
         if ($dailyRecords->isEmpty()) {
             $this->command->info('No daily records found for batch 3 (laying hens). Skipping egg production seeding.');
+
             return;
         }
 

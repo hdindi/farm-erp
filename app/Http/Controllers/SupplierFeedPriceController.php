@@ -48,6 +48,7 @@ class SupplierFeedPriceController extends Controller
     public function show(SupplierFeedPrice $supplierFeedPrice)
     {
         $supplierFeedPrice->load(['supplier', 'feedType', 'purchaseUnit']);
+
         return view('supplier-feed-prices.show', compact('supplierFeedPrice'));
     }
 

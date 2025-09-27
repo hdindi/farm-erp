@@ -20,6 +20,7 @@ class AuditLogController extends Controller
     public function show(AuditLog $auditLog)
     {
         $auditLog->load(['user']);
+
         return view('audit-logs.show', compact('auditLog'));
     }
 

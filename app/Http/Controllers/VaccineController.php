@@ -10,6 +10,7 @@ class VaccineController extends Controller
     public function index()
     {
         $vaccines = Vaccine::latest()->paginate(10);
+
         return view('vaccines.index', compact('vaccines'));
     }
 

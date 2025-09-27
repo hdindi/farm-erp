@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers; // Adjust namespace if needed
 
-use App\Models\Role;
 use App\Models\Module;
-use App\Models\ModulePermission; // Needed for validation
+use App\Models\ModulePermission;
+use App\Models\Role; // Needed for validation
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -16,6 +16,7 @@ class RoleController extends Controller
     public function index()
     {
         $roles = Role::orderBy('name')->paginate(15);
+
         return view('roles.index', compact('roles'));
     }
 
@@ -26,6 +27,7 @@ class RoleController extends Controller
     {
         // Pass empty role for form consistency (optional)
         $role = new Role(['is_active' => true]); // Default to active
+
         return view('roles.create', compact('role'));
     }
 
@@ -54,6 +56,7 @@ class RoleController extends Controller
     {
         // Eager load permissions grouped by module for display
         $role->load(['modulePermissions.module', 'modulePermissions.permission']);
+
         return view('roles.show', compact('role'));
     }
 
@@ -117,7 +120,6 @@ class RoleController extends Controller
             ->with('success', 'Role permissions updated successfully.');
     }
 
-
     /**
      * Remove the specified resource from storage.
      */
@@ -134,12 +136,14 @@ class RoleController extends Controller
             $role->modulePermissions()->detach();
             $role->users()->detach(); // Assuming role_user pivot exists
             $role->delete();
+
             return redirect()->route('roles.index')
                 ->with('success', 'Role deleted successfully.');
         } catch (\Exception $e) {
-            \Log::error("Error deleting role ID {$role->id}: " . $e->getMessage());
+            \Log::error("Error deleting role ID {$role->id}: ".$e->getMessage());
+
             return redirect()->route('roles.index')
-                ->with('error', 'Failed to delete role. It might be assigned to users or have other constraints. Error: ' . $e->getMessage());
+                ->with('error', 'Failed to delete role. It might be assigned to users or have other constraints. Error: '.$e->getMessage());
         }
     }
 }

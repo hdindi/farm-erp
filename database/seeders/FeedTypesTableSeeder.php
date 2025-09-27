@@ -1,5 +1,7 @@
 <?php
+
 // database/seeders/FeedTypesTableSeeder.php
+
 namespace Database\Seeders;
 
 use App\Models\FeedType;

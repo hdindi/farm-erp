@@ -10,6 +10,7 @@ class DrugController extends Controller
     public function index()
     {
         $drugs = Drug::latest()->paginate(10);
+
         return view('drugs.index', compact('drugs'));
     }
 

@@ -24,6 +24,7 @@ class DiseaseManagementController extends Controller
         $batches = Batch::where('status', 'active')->get();
         $diseases = Disease::all();
         $drugs = Drug::all();
+
         return view('disease-management.create', compact('batches', 'diseases', 'drugs'));
     }
 
@@ -49,6 +50,7 @@ class DiseaseManagementController extends Controller
     public function show(DiseaseManagement $diseaseManagement)
     {
         $diseaseManagement->load(['batch', 'disease', 'drug']);
+
         return view('disease-management.show', compact('diseaseManagement'));
     }
 
@@ -57,6 +59,7 @@ class DiseaseManagementController extends Controller
         $batches = Batch::where('status', 'active')->get();
         $diseases = Disease::all();
         $drugs = Drug::all();
+
         return view('disease-management.edit', compact('diseaseManagement', 'batches', 'diseases', 'drugs'));
     }
 

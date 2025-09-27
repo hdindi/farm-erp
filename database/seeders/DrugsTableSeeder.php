@@ -1,6 +1,7 @@
 <?php
 
 // database/seeders/DrugsTableSeeder.php
+
 namespace Database\Seeders;
 
 use App\Models\Drug;

@@ -1,6 +1,7 @@
 <?php
 
 // database/seeders/DatabaseSeeder.php
+
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
@@ -59,10 +60,8 @@ class DatabaseSeeder extends Seeder
 
         ]);
 
-
         // Re-enable foreign key checks
         \DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-
 
     }
 }

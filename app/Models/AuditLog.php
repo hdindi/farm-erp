@@ -17,7 +17,7 @@ class AuditLog extends Model
      *
      * @var bool
      */
-    //public $timestamps = false; // Disable default created_at/updated_at
+    // public $timestamps = false; // Disable default created_at/updated_at
 
     /**
      * The table associated with the model.

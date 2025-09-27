@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers; // Adjust namespace if needed
 
-use App\Models\User;
 use App\Models\Role;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash; // For password hashing
 use Illuminate\Validation\Rule; // For unique validation
@@ -18,6 +18,7 @@ class UserController extends Controller
     {
         // Eager load roles to display them in the table efficiently
         $users = User::with('roles')->orderBy('name')->paginate(15);
+
         return view('users.index', compact('users'));
     }
 
@@ -28,6 +29,7 @@ class UserController extends Controller
     {
         // Get active roles for the assignment dropdown/checkboxes
         $roles = Role::where('is_active', true)->orderBy('name')->get();
+
         return view('users.create', compact('roles'));
     }
 
@@ -70,6 +72,7 @@ class UserController extends Controller
     public function show(User $user)
     {
         $user->load('roles'); // Eager load roles
+
         return view('users.show', compact('user'));
     }
 
@@ -80,6 +83,7 @@ class UserController extends Controller
     {
         $user->load('roles'); // Load current roles for the form
         $roles = Role::where('is_active', true)->orderBy('name')->get(); // Get all active roles
+
         return view('users.edit', compact('user', 'roles'));
     }
 
@@ -101,7 +105,7 @@ class UserController extends Controller
         ]);
 
         // Only update password if a new one was provided
-        if (!empty($validated['password'])) {
+        if (! empty($validated['password'])) {
             // The 'hashed' cast in the User model handles hashing automatically
             // $validated['password'] = Hash::make($validated['password']); // No longer needed
         } else {
@@ -119,7 +123,7 @@ class UserController extends Controller
         }
 
         return redirect()->route('users.index') // Redirect to index after update
-        ->with('success', 'User updated successfully.');
+            ->with('success', 'User updated successfully.');
     }
 
     /**
@@ -137,10 +141,12 @@ class UserController extends Controller
             // Detach roles before deleting user (optional, depends on foreign key constraints)
             $user->roles()->detach();
             $user->delete();
+
             return redirect()->route('users.index')
                 ->with('success', 'User deleted successfully.');
         } catch (\Exception $e) {
-            Log::error("Error deleting user ID {$user->id}: " . $e->getMessage());
+            Log::error("Error deleting user ID {$user->id}: ".$e->getMessage());
+
             return redirect()->route('users.index')
                 ->with('error', 'Failed to delete user. Check logs.');
         }

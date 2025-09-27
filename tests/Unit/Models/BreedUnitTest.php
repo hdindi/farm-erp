@@ -2,11 +2,11 @@
 
 namespace Tests\Unit\Models; // Correct namespace
 
-use Tests\TestCase; // Use the base TestCase
+use App\Models\Batch; // Use the base TestCase
 use App\Models\Breed; // Import the model we are testing
-use App\Models\Batch; // Import related model for relationship test
+use Illuminate\Database\Eloquent\Relations\HasMany; // Import related model for relationship test
 use Illuminate\Foundation\Testing\RefreshDatabase; // Use for database interactions
-use Illuminate\Database\Eloquent\Relations\HasMany; // For relationship assertion
+use Tests\TestCase; // For relationship assertion
 
 class BreedUnitTest extends TestCase
 {
@@ -14,8 +14,6 @@ class BreedUnitTest extends TestCase
 
     /**
      * Test if a Breed can be created using the factory or attributes.
-     *
-     * @return void
      */
     public function test_breed_can_be_created(): void
     {
@@ -28,7 +26,7 @@ class BreedUnitTest extends TestCase
 
         // Assert: Check if the breed was actually created in the database
         $this->assertDatabaseHas('breeds', [ // Check the 'breeds' table
-            'name' => 'TestRoss 308'
+            'name' => 'TestRoss 308',
         ]);
         $this->assertInstanceOf(Breed::class, $breed);
         $this->assertEquals('TestRoss 308', $breed->name);
@@ -45,12 +43,10 @@ class BreedUnitTest extends TestCase
     /**
      * Test the fillable attributes of the Breed model.
      * Ensures only expected attributes can be mass-assigned.
-     *
-     * @return void
      */
     public function test_breed_has_correct_fillable_attributes(): void
     {
-        $breed = new Breed();
+        $breed = new Breed;
         $expectedFillable = ['name', 'description']; // Match $fillable in Breed model
         $this->assertEquals($expectedFillable, $breed->getFillable());
     }
@@ -58,8 +54,6 @@ class BreedUnitTest extends TestCase
     /**
      * Test the relationship between Breed and Batch.
      * A Breed should have many Batches.
-     *
-     * @return void
      */
     public function test_breed_has_many_batches_relationship(): void
     {
@@ -82,7 +76,6 @@ class BreedUnitTest extends TestCase
             'breed_id' => $otherBreed->id,
             'bird_type_id' => $birdType->id,
         ]);
-
 
         // Assert: Check the relationship type
         $this->assertInstanceOf(HasMany::class, $breed->batches());

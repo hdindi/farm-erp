@@ -234,7 +234,7 @@
 
                 loader.style.display = 'block';
 
-                fetch(`/api/batches/${batchId}`)
+                fetch(`/api/batches/${batchId}/details`)
                     .then(response => {
                         if (!response.ok) throw new Error('Network response was not ok');
                         return response.json();

@@ -1,5 +1,7 @@
 <?php
+
 // database/seeders/SalesUnitsTableSeeder.php
+
 namespace Database\Seeders;
 
 use App\Models\SalesUnit;

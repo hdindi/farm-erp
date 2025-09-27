@@ -12,7 +12,9 @@ class ModulePermission extends Model
     use HasFactory;
 
     protected $table = 'module_permissions';
+
     protected $fillable = ['module_id', 'permission_id', 'is_active'];
+
     protected $casts = ['is_active' => 'boolean', 'created_at' => 'datetime', 'updated_at' => 'datetime'];
 
     /**

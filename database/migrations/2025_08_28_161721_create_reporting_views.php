@@ -11,8 +11,9 @@ return new class extends Migration
     public function up(): void
     {
         // Create v_farm_kpis view
-        DB::statement("
-            CREATE OR REPLACE VIEW v_farm_kpis AS
+        DB::statement('DROP VIEW IF EXISTS v_farm_kpis');
+        DB::statement('
+            CREATE VIEW v_farm_kpis AS
             SELECT 
                 COUNT(DISTINCT sr.id) as total_sales_transactions,
                 COALESCE(SUM(sr.total_amount), 0) as total_revenue_generated,
@@ -28,11 +29,12 @@ return new class extends Migration
                 FROM daily_records 
                 WHERE record_date = (SELECT MAX(record_date) FROM daily_records)
             ) dr
-        ");
+        ');
 
         // Create v_daily_egg_summary view
-        DB::statement("
-            CREATE OR REPLACE VIEW v_daily_egg_summary AS
+        DB::statement('DROP VIEW IF EXISTS v_daily_egg_summary');
+        DB::statement('
+            CREATE VIEW v_daily_egg_summary AS
             SELECT 
                 dr.record_date,
                 COALESCE(SUM(ep.total_eggs), 0) as total_eggs_collected,
@@ -42,11 +44,12 @@ return new class extends Migration
             LEFT JOIN egg_production ep ON dr.id = ep.daily_record_id
             GROUP BY dr.record_date
             ORDER BY dr.record_date DESC
-        ");
+        ');
 
         // Create v_sales_by_salesperson view
-        DB::statement("
-            CREATE OR REPLACE VIEW v_sales_by_salesperson AS
+        DB::statement('DROP VIEW IF EXISTS v_sales_by_salesperson');
+        DB::statement('
+            CREATE VIEW v_sales_by_salesperson AS
             SELECT 
                 u.name as salesperson_name,
                 COUNT(sr.id) as number_of_sales,
@@ -56,11 +59,12 @@ return new class extends Migration
             LEFT JOIN sales_records sr ON u.id = sr.sales_person_id
             GROUP BY u.id, u.name
             ORDER BY total_sales_amount DESC
-        ");
+        ');
 
         // Create vw_batch_summary view
-        DB::statement("
-            CREATE OR REPLACE VIEW vw_batch_summary AS
+        DB::statement('DROP VIEW IF EXISTS vw_batch_summary');
+        DB::statement('
+            CREATE VIEW vw_batch_summary AS
             SELECT 
                 b.batch_code,
                 b.status,
@@ -107,11 +111,12 @@ return new class extends Migration
                 FROM daily_records 
                 GROUP BY batch_id
             ) total_culls ON b.id = total_culls.batch_id
-        ");
+        ');
 
         // Create vw_batch_daily_performance view
-        DB::statement("
-            CREATE OR REPLACE VIEW vw_batch_daily_performance AS
+        DB::statement('DROP VIEW IF EXISTS vw_batch_daily_performance');
+        DB::statement('
+            CREATE VIEW vw_batch_daily_performance AS
             SELECT 
                 b.batch_code,
                 dr.record_date,
@@ -130,11 +135,12 @@ return new class extends Migration
             JOIN batches b ON dr.batch_id = b.id
             LEFT JOIN stages s ON dr.stage_id = s.id
             ORDER BY b.batch_code, dr.record_date
-        ");
+        ');
 
         // Create vw_batch_feed_consumption view
-        DB::statement("
-            CREATE OR REPLACE VIEW vw_batch_feed_consumption AS
+        DB::statement('DROP VIEW IF EXISTS vw_batch_feed_consumption');
+        DB::statement('
+            CREATE VIEW vw_batch_feed_consumption AS
             SELECT 
                 b.batch_code,
                 dr.record_date,
@@ -148,11 +154,12 @@ return new class extends Migration
             JOIN batches b ON dr.batch_id = b.id
             JOIN feed_types ft ON fr.feed_type_id = ft.id
             ORDER BY b.batch_code, dr.record_date, fr.feeding_time
-        ");
+        ');
 
         // Create vw_batch_vaccination_details view
-        DB::statement("
-            CREATE OR REPLACE VIEW vw_batch_vaccination_details AS
+        DB::statement('DROP VIEW IF EXISTS vw_batch_vaccination_details');
+        DB::statement('
+            CREATE VIEW vw_batch_vaccination_details AS
             SELECT 
                 b.batch_code,
                 dr.record_date,
@@ -165,11 +172,12 @@ return new class extends Migration
             JOIN batches b ON dr.batch_id = b.id
             JOIN vaccines v ON vl.vaccine_id = v.id
             ORDER BY b.batch_code, dr.record_date DESC
-        ");
+        ');
 
         // Create vw_batch_disease_management view
-        DB::statement("
-            CREATE OR REPLACE VIEW vw_batch_disease_management AS
+        DB::statement('DROP VIEW IF EXISTS vw_batch_disease_management');
+        DB::statement('
+            CREATE VIEW vw_batch_disease_management AS
             SELECT 
                 b.batch_code,
                 dm.observation_date,
@@ -184,7 +192,7 @@ return new class extends Migration
             LEFT JOIN diseases d ON dm.disease_id = d.id
             LEFT JOIN drugs dr ON dm.drug_id = dr.id
             ORDER BY b.batch_code, dm.observation_date DESC
-        ");
+        ');
     }
 
     /**

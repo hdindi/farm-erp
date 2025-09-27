@@ -1,6 +1,7 @@
 <?php
 
 // database/seeders/VaccinesTableSeeder.php
+
 namespace Database\Seeders;
 
 use App\Models\Vaccine;

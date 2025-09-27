@@ -56,6 +56,7 @@ class PurchaseOrderController extends Controller
     public function show(PurchaseOrder $purchaseOrder)
     {
         $purchaseOrder->load(['supplier', 'feedType', 'purchaseUnit', 'status']);
+
         return view('purchase-orders.show', compact('purchaseOrder'));
     }
 

@@ -10,6 +10,7 @@ class FeedTypeController extends Controller
     public function index()
     {
         $feedTypes = FeedType::latest()->paginate(10);
+
         return view('feed-types.index', compact('feedTypes'));
     }
 

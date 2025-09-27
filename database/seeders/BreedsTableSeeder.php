@@ -1,5 +1,7 @@
 <?php
+
 // database/seeders/BreedsTableSeeder.php
+
 namespace Database\Seeders;
 
 use App\Models\Breed;

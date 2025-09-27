@@ -18,7 +18,6 @@ class FeedRecordController extends Controller
         return view('feed-records.index', compact('feedRecords'));
     }
 
-
     /**
      * Show the form for creating a new resource.
      */
@@ -35,7 +34,6 @@ class FeedRecordController extends Controller
 
         return view('feed-records.create', compact('dailyRecords', 'feedTypes'));
     }
-
 
     public function store(Request $request)
     {
@@ -57,6 +55,7 @@ class FeedRecordController extends Controller
     public function show(FeedRecord $feedRecord)
     {
         $feedRecord->load(['dailyRecord.batch', 'feedType']);
+
         return view('feed-records.show', compact('feedRecord'));
     }
 

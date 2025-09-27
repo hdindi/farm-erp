@@ -49,6 +49,7 @@ class SalesPriceController extends Controller
         if ($salesPrice->item_type === 'bird') {
             $salesPrice->load(['batch']);
         }
+
         return view('sales-prices.show', compact('salesPrice'));
     }
 

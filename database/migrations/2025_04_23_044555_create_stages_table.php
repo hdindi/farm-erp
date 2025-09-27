@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB; // Needed for raw SQL check constraint if necessary
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema; // Needed for raw SQL check constraint if necessary
 
 return new class extends Migration
 {
@@ -27,7 +27,7 @@ return new class extends Migration
             // Note: SQLite doesn't enforce CHECK constraints by default before version 3.37.0
             // Consider conditional logic if supporting multiple DBs or older SQLite
             if (DB::connection()->getDriverName() !== 'sqlite') {
-               // DB::statement('ALTER TABLE stages ADD CONSTRAINT stages_check_age CHECK (max_age_days >= min_age_days)');
+                // DB::statement('ALTER TABLE stages ADD CONSTRAINT stages_check_age CHECK (max_age_days >= min_age_days)');
             }
             // Alternatively, handle validation in application logic
         });

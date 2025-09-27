@@ -40,7 +40,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        @forelse ($dailyRecords as $record)
+                        @foreach ($dailyRecords as $record)
                             <tr>
                                 <td>{{ $record->id }}</td>
                                 <td>{{ $record->record_date->format('Y-m-d') }}</td>
@@ -51,7 +51,7 @@
                                 <td class="numeric">{{ number_format($record->dead_count) }}</td>
                                 <td class="numeric">{{ number_format($record->culls_count) }}</td>
                                 <td class="numeric">{{ $record->average_weight_grams }}</td>
-                                <td class="numeric">{{ number_format($record->mortality_percentage, 2) }}</td>
+                                <td class="numeric">{{ number_format($record->mortality_rate, 2) }}</td>
                                 <td>
                                     {{-- Actions: View, Edit, Delete Modals --}}
                                     <div class="btn-group" role="group" aria-label="Record Actions">
@@ -90,72 +90,105 @@
                                     </div>
                                 </td>
                             </tr>
-                        @empty
-                            <tr>
-                                <td colspan="11" class="text-center">No daily records found.</td>
-                            </tr>
-                        @endforelse
+                        @endforeach
                         </tbody>
                     </table>
                 </div>
 
-                {{-- ✅ CORRECTED BOOTSTRAP 5 PAGINATION --}}
+                {{-- Removed manual pagination - DataTables handles it --}}
+                {{--
                 <div class="d-flex justify-content-center mt-4">
                     {{ $dailyRecords->links('pagination::bootstrap-5') }}
                 </div>
-
+                 --}}
             </div>
         </div>
     </div>
 @endsection
 
 @push('styles')
-    {{-- DataTables CSS --}}
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
     <style>
-        .dataTables_wrapper .row:first-child { margin-bottom: 1rem; }
-        .dt-buttons .btn { margin-right: 0.5rem; }
-        .numeric { text-align: right; }
+        /* Add spacing for DataTables controls */
+        .dataTables_wrapper .row:first-child {
+            margin-bottom: 1rem;
+        }
+        .dt-buttons .btn {
+            margin-right: 0.5rem;
+        }
+        .numeric { 
+            text-align: right; 
+        }
     </style>
 @endpush
 
 @push('scripts')
-    {{-- DataTables JavaScript --}}
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
-
     <script>
         $(document).ready(function() {
-            $('#daily-records-table').DataTable({
-                responsive: true,
-                // ✅ CORRECTED: 'p' (pagination) is removed from dom, and paging is set to false.
-                paging: false,
-                dom: 'Bfrti', // B=Buttons, f=filtering, r=processing, t=table, i=info
-                buttons: [
-                    { extend: 'copyHtml5', text: '<i class="fas fa-copy"></i> Copy', titleAttr: 'Copy', className: 'btn btn-secondary' },
-                    { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Excel', titleAttr: 'Excel', className: 'btn btn-success' },
-                    { extend: 'csvHtml5', text: '<i class="fas fa-file-csv"></i> CSV', titleAttr: 'CSV', className: 'btn btn-info' },
-                    { extend: 'pdfHtml5', text: '<i class="fas fa-file-pdf"></i> PDF', titleAttr: 'PDF', className: 'btn btn-danger', orientation: 'landscape' },
-                    { extend: 'print', text: '<i class="fas fa-print"></i> Print', titleAttr: 'Print', className: 'btn btn-warning' },
-                    { extend: 'colvis', text: '<i class="fas fa-eye-slash"></i> Columns', titleAttr: 'Columns', className: 'btn btn-light' }
-                ],
-                // Set default order by Record Date (column index 1) descending
-                order: [[ 1, 'desc' ]],
-                // Disable ordering and searching on the 'Actions' column
-                "columnDefs": [
-                    { "orderable": false, "searchable": false, "targets": 10 }
-                ]
-            });
+            // Debug: Check table structure before initializing DataTables
+            var table = $('#daily-records-table');
+            var headerCols = table.find('thead tr:first th').length;
+            var firstRowCols = table.find('tbody tr:first td').length;
+            console.log('Header columns:', headerCols, 'First row columns:', firstRowCols);
+            
+            if (headerCols !== firstRowCols && table.find('tbody tr').length > 0) {
+                console.error('Column count mismatch! Header:', headerCols, 'Row:', firstRowCols);
+            }
+            
+            try {
+                $('#daily-records-table').DataTable({
+                    responsive: true,
+                    dom: 'Bfrtip', // B=Buttons, f=filtering, r=processing, t=table, i=info, p=pagination
+                    buttons: [
+                        {
+                            extend: 'copyHtml5',
+                            text: '<i class="fas fa-copy"></i> Copy',
+                            titleAttr: 'Copy to clipboard',
+                            className: 'btn btn-secondary'
+                        },
+                        {
+                            extend: 'excelHtml5',
+                            text: '<i class="fas fa-file-excel"></i> Excel',
+                            titleAttr: 'Export to Excel',
+                            className: 'btn btn-success'
+                        },
+                        {
+                            extend: 'csvHtml5',
+                            text: '<i class="fas fa-file-csv"></i> CSV',
+                            titleAttr: 'Export to CSV',
+                            className: 'btn btn-info'
+                        },
+                        {
+                            extend: 'pdfHtml5',
+                            text: '<i class="fas fa-file-pdf"></i> PDF',
+                            titleAttr: 'Export to PDF',
+                            className: 'btn btn-danger'
+                        },
+                        {
+                            extend: 'print',
+                            text: '<i class="fas fa-print"></i> Print',
+                            titleAttr: 'Print table',
+                            className: 'btn btn-warning'
+                        },
+                        {
+                            extend: 'colvis',
+                            text: '<i class="fas fa-eye-slash"></i> Column Visibility',
+                            titleAttr: 'Show/hide columns',
+                            className: 'btn btn-light'
+                        }
+                    ],
+                    // Set default order by Record Date (column index 1) descending
+                    order: [[ 1, 'desc' ]],
+                    // Disable ordering and searching on the 'Actions' column
+                    "columnDefs": [ {
+                        "targets": [10], // Target the "Actions" column (index 10)
+                        "orderable": false, // Disable sorting
+                        "searchable": false // Disable searching
+                    } ]
+                });
+                console.log('DataTables initialized successfully');
+            } catch (error) {
+                console.error('DataTables initialization error:', error);
+            }
         });
     </script>
 @endpush

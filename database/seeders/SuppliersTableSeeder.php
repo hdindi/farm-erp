@@ -1,5 +1,7 @@
 <?php
+
 // database/seeders/SuppliersTableSeeder.php
+
 namespace Database\Seeders;
 
 use App\Models\Supplier;

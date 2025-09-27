@@ -1,6 +1,7 @@
 <?php
 
 // database/seeders/SalesRecordsTableSeeder.php
+
 namespace Database\Seeders;
 
 use App\Models\SalesPrice;
@@ -43,12 +44,12 @@ class SalesRecordsTableSeeder extends Seeder
         $firstNames = ['John', 'Mary', 'James', 'Elizabeth', 'Robert', 'Patricia', 'Michael', 'Jennifer'];
         $lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Miller', 'Davis', 'Garcia'];
 
-        return $firstNames[array_rand($firstNames)] . ' ' . $lastNames[array_rand($lastNames)];
+        return $firstNames[array_rand($firstNames)].' '.$lastNames[array_rand($lastNames)];
     }
 
     protected function generatePhoneNumber()
     {
-        return '+2547' . rand(10, 99) . rand(100000, 999999);
+        return '+2547'.rand(10, 99).rand(100000, 999999);
     }
 
     protected function getSalesNotes($price)
@@ -60,6 +61,7 @@ class SalesRecordsTableSeeder extends Seeder
         ];
 
         $itemType = $items[$price->item_type] ?? $items['egg'];
-        return $itemType[array_rand($itemType)] . ' sold to customer';
+
+        return $itemType[array_rand($itemType)].' sold to customer';
     }
 }

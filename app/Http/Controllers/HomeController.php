@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use App\Models\Batch;
+use App\Models\DailyRecord;
 use App\Models\EggProduction;
+use App\Models\FeedRecord;
 use App\Models\PurchaseOrder;
 use App\Models\SalesRecord;
-use App\Models\AuditLog;
-use App\Models\DailyRecord;
-use App\Models\FeedRecord;
 use App\Models\VaccineSchedule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -33,7 +33,7 @@ class HomeController extends Controller
         // --- Existing Non-Date Specific Data ---
         $activeBatchesCount = Batch::where('status', 'active')->count();
         $totalEggsProduced = EggProduction::sum('total_eggs'); // Lifetime total
-        $pendingOrdersCount = PurchaseOrder::whereHas('status', function($query) {
+        $pendingOrdersCount = PurchaseOrder::whereHas('status', function ($query) {
             $query->where('name', '!=', 'Completed'); // Adjust if status name differs
         })->count();
         $latestActivities = AuditLog::with(['user'])
@@ -47,16 +47,16 @@ class HomeController extends Controller
         // --- KPIs Filtered by Date Range ---
         $dailyRecordsInRangeQuery = DailyRecord::whereBetween('record_date', [$dateFrom, $dateTo]);
 
-        $eggsInRange = EggProduction::whereHas('dailyRecord', fn($q) => $q->whereBetween('record_date', [$dateFrom, $dateTo]))->sum('total_eggs');
+        $eggsInRange = EggProduction::whereHas('dailyRecord', fn ($q) => $q->whereBetween('record_date', [$dateFrom, $dateTo]))->sum('total_eggs');
         $layersInRange = (clone $dailyRecordsInRangeQuery) // Clone the query builder
-        ->whereHas('batch.birdType', fn($q) => $q->where('name', 'Layer'))
+            ->whereHas('batch.birdType', fn ($q) => $q->where('name', 'Layer'))
             ->where('alive_count', '>', 0)
             ->sum('alive_count'); // This sums alive count *within the range*, might need adjustment depending on desired KPI
         $layRateInRange = ($layersInRange > 0 && $dateFrom->isSameDay($dateTo)) // Calculate rate only if single day & layers exist
             ? ($eggsInRange / $layersInRange) * 100
             : null; // Or calculate average rate over the period if desired
 
-        $feedInRange = FeedRecord::whereHas('dailyRecord', fn($q) => $q->whereBetween('record_date', [$dateFrom, $dateTo]))->sum('quantity_kg');
+        $feedInRange = FeedRecord::whereHas('dailyRecord', fn ($q) => $q->whereBetween('record_date', [$dateFrom, $dateTo]))->sum('quantity_kg');
 
         $mortalityInRangeQuery = (clone $dailyRecordsInRangeQuery)->where('alive_count', '>', 0);
         $totalDeadInRange = $mortalityInRangeQuery->sum('dead_count');
@@ -72,7 +72,7 @@ class HomeController extends Controller
         $overdueVaccinationsCount = VaccineSchedule::where('status', 'scheduled')
             ->where('date_due', '<', $today)
             ->count();
-        $overdueVaccinations = VaccineSchedule::with(['batch','vaccine'])
+        $overdueVaccinations = VaccineSchedule::with(['batch', 'vaccine'])
             ->where('status', 'scheduled')
             ->where('date_due', '<', $today)
             ->orderBy('date_due', 'asc')
@@ -90,7 +90,7 @@ class HomeController extends Controller
             ->orderBy('date', 'asc')
             ->get()
             ->pluck('total', 'date');
-        $eggTrendLabels = $eggProductionTrend->keys()->map(fn($date) => Carbon::parse($date)->format('M d'))->toArray();
+        $eggTrendLabels = $eggProductionTrend->keys()->map(fn ($date) => Carbon::parse($date)->format('M d'))->toArray();
         $eggTrendData = $eggProductionTrend->values()->toArray();
 
         $feedConsumptionTrend = FeedRecord::join('daily_records', 'feed_records.daily_record_id', '=', 'daily_records.id')
@@ -100,7 +100,7 @@ class HomeController extends Controller
             ->orderBy('date', 'asc')
             ->get()
             ->pluck('total', 'date');
-        $feedTrendLabels = $feedConsumptionTrend->keys()->map(fn($date) => Carbon::parse($date)->format('M d'))->toArray();
+        $feedTrendLabels = $feedConsumptionTrend->keys()->map(fn ($date) => Carbon::parse($date)->format('M d'))->toArray();
         $feedTrendData = $feedConsumptionTrend->values()->toArray();
 
         // --- Recent Sales (Not typically filtered by dashboard date range) ---
@@ -110,7 +110,7 @@ class HomeController extends Controller
             ->get();
 
         return view('home', compact(
-        // Existing (mostly unaffected by date filter)
+            // Existing (mostly unaffected by date filter)
             'activeBatchesCount',
             'totalEggsProduced',
             'pendingOrdersCount',

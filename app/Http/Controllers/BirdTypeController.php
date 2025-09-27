@@ -10,6 +10,7 @@ class BirdTypeController extends Controller
     public function index()
     {
         $birdTypes = BirdType::latest()->paginate(10);
+
         return view('bird-types.index', compact('birdTypes'));
     }
 

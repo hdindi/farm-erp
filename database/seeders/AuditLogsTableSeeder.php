@@ -1,6 +1,7 @@
 <?php
 
 // database/seeders/AuditLogsTableSeeder.php
+
 namespace Database\Seeders;
 
 use App\Models\AuditLog;
@@ -17,7 +18,7 @@ class AuditLogsTableSeeder extends Seeder
         $tables = [
             'batches', 'daily_records', 'feed_records', 'egg_production',
             'disease_management', 'vaccination_logs', 'purchase_orders',
-            'sales_records', 'users'
+            'sales_records', 'users',
         ];
 
         for ($i = 1; $i <= 200; $i++) {
@@ -33,7 +34,7 @@ class AuditLogsTableSeeder extends Seeder
                 'action' => $action,
                 'old_values' => $action === 'UPDATE' ? json_encode(['field' => 'old_value']) : null,
                 'new_values' => json_encode(['field' => 'new_value']),
-                'ip_address' => '192.168.' . rand(1, 255) . '.' . rand(1, 255),
+                'ip_address' => '192.168.'.rand(1, 255).'.'.rand(1, 255),
                 'user_agent' => $this->getRandomUserAgent(),
             ]);
         }

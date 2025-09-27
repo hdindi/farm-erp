@@ -1,6 +1,7 @@
 <?php
 
 // database/seeders/SalesTeamsTableSeeder.php
+
 namespace Database\Seeders;
 
 use App\Models\SalesTeam;

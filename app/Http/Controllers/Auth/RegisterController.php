@@ -5,11 +5,11 @@ namespace App\Http\Controllers\Auth; // Ensure namespace is correct
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Http\Request;
-use Illuminate\Auth\Events\Registered;
 
 class RegisterController extends Controller
 {
@@ -24,7 +24,6 @@ class RegisterController extends Controller
      * $this->middleware('guest'); // This line was causing the error
      * }
      */
-
     protected function validator(array $data)
     {
         // ... (keep existing validator logic)

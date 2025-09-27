@@ -1,42 +1,41 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\HomeController;
+use App\Http\Controllers\AuditLogController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\BatchController;
 use App\Http\Controllers\BirdTypeController;
 use App\Http\Controllers\BreedController;
 use App\Http\Controllers\DailyRecordController;
-use App\Http\Controllers\FeedRecordController;
-use App\Http\Controllers\EggProductionController;
-use App\Http\Controllers\DiseaseManagementController;
-use App\Http\Controllers\VaccinationLogController;
-use App\Http\Controllers\VaccineScheduleController;
-use App\Http\Controllers\PurchaseOrderController;
-use App\Http\Controllers\SupplierController;
-use App\Http\Controllers\FeedTypeController;
-use App\Http\Controllers\SalesRecordController;
-use App\Http\Controllers\SalesPriceController;
-use App\Http\Controllers\SalesTeamController;
-use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\DiseaseController;
+use App\Http\Controllers\DiseaseManagementController;
 use App\Http\Controllers\DrugController;
-use App\Http\Controllers\ModuleController; // Assuming web routes for now
-use App\Http\Controllers\PermissionController; // Assuming web routes for now
+use App\Http\Controllers\EggProductionController;
+use App\Http\Controllers\FeedRecordController;
+use App\Http\Controllers\FeedTypeController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ModuleController;
+use App\Http\Controllers\ModulePermissionController;
+use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\PurchaseOrderController;
 use App\Http\Controllers\PurchaseOrderStatusController;
 use App\Http\Controllers\PurchaseUnitController;
-use App\Http\Controllers\RoleController; // Assuming web routes for now
-use App\Http\Controllers\SalesUnitController;
-use App\Http\Controllers\StageController;
-use App\Http\Controllers\SupplierFeedPriceController;
-use App\Http\Controllers\VaccineController;
-use App\Http\Controllers\ModulePermissionController; // Assuming web routes for now
-use App\Http\Controllers\RolePermissionController; // Assuming web routes for now
-use App\Http\Controllers\Auth\RegisterController; // Make sure path is correct
 use App\Http\Controllers\ReportController;
-use App\Http\Controllers\UserController; // Make sure this import is correct
-
-
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SalesPriceController; // Assuming web routes for now
+use App\Http\Controllers\SalesRecordController; // Assuming web routes for now
+use App\Http\Controllers\SalesTeamController;
+use App\Http\Controllers\SalesUnitController;
+use App\Http\Controllers\StageController; // Assuming web routes for now
+use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\SupplierFeedPriceController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\VaccinationLogController;
+use App\Http\Controllers\VaccineController; // Assuming web routes for now
+// Assuming web routes for now
+use App\Http\Controllers\VaccineScheduleController; // Make sure path is correct
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route; // Make sure this import is correct
 
 /*
 |--------------------------------------------------------------------------
@@ -49,15 +48,13 @@ use App\Http\Controllers\UserController; // Make sure this import is correct
 |
 */
 
-
-//Route::middleware('guest')->group(function () {
+// Route::middleware('guest')->group(function () {
 //    Route::get('register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 //    Route::post('register', [RegisterController::class, 'register']);
 //    // Also apply to login routes if they are defined separately
 //     Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
 //     Route::post('login', [LoginController::class, 'login']);
-//});
-
+// });
 
 // Welcome Page
 Route::get('/', function () {
@@ -65,12 +62,16 @@ Route::get('/', function () {
 });
 
 // Authentication Routes (Login, Register, Logout etc.)
-Auth::routes(); // This handles routes defined in LoginController and RegisterController
+// Only include routes for controllers that exist
+Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::post('login', [LoginController::class, 'login']);
+Route::post('logout', [LoginController::class, 'logout'])->name('logout');
+Route::get('register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+Route::post('register', [RegisterController::class, 'register']);
 
 // Registration Routes
-//Route::get('register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-//Route::post('register', [RegisterController::class, 'register']);
-
+// Route::get('register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+// Route::post('register', [RegisterController::class, 'register']);
 
 // Authenticated Routes
 Route::middleware(['auth'])->group(function () {
@@ -104,7 +105,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('vaccine-schedule-calendar', [VaccineScheduleController::class, 'calendar'])->name('vaccine-schedule.calendar'); //
     Route::get('vaccine-schedule-dashboard', [VaccineScheduleController::class, 'dashboard'])->name('vaccine-schedule.dashboard'); //
 
-
     // Inventory & Purchasing
     Route::resource('purchase-orders', PurchaseOrderController::class); //
     Route::resource('suppliers', SupplierController::class); //
@@ -113,13 +113,11 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('purchase-units', PurchaseUnitController::class); //
     Route::resource('purchase-order-statuses', PurchaseOrderStatusController::class); //
 
-
     // Sales
     Route::resource('sales-records', SalesRecordController::class); //
     Route::resource('sales-prices', SalesPriceController::class); //
     Route::resource('sales-teams', SalesTeamController::class); //
     Route::resource('sales-units', SalesUnitController::class); //
-
 
     // System & RBAC (Assuming Web UI for now)
     Route::get('audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index'); //
@@ -136,8 +134,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('module-permissions/module/{module}', [ModulePermissionController::class, 'modulePermissions'])->name('module-permissions.module'); //
     Route::get('module-permissions/permission/{permission}', [ModulePermissionController::class, 'permissionModules'])->name('module-permissions.permission'); //
 
-
-
     Route::resource('roles', RoleController::class)->except(['create', 'edit']); //
     Route::get('roles/{role}/permissions', [RoleController::class, 'permissions'])->name('roles.permissions'); //
     Route::post('roles/{role}/sync-permissions', [RoleController::class, 'syncPermissions'])->name('roles.syncPermissions'); //
@@ -150,9 +146,7 @@ Route::middleware(['auth'])->group(function () {
     // Resource routes for managing Module-Permission links
     Route::resource('module-permissions', ModulePermissionController::class)->except(['show']); // Exclude show if index is enough
 
-
     // --- End RBAC Routes ---
-
 
     Route::get('/reports/batch-performance', [ReportController::class, 'batchPerformance'])->name('reports.batch-performance');
     // Add other report routes here...
@@ -174,8 +168,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('roles', RoleController::class);
     Route::resource('users', UserController::class)->middleware('auth'); // Add middleware as needed
 
-
-// If you added the custom route for permissions update, make sure it's also there:
+    // If you added the custom route for permissions update, make sure it's also there:
     Route::put('/roles/{role}/permissions', [RoleController::class, 'updatePermissions'])->name('roles.updatePermissions'); // Or PATCH
 
     Route::resource('/permissions', PermissionController::class);
@@ -195,6 +188,6 @@ Route::middleware(['auth'])->group(function () {
         // Route::resource('permissions', PermissionController::class);
         // Route::resource('modules', ModuleController::class);
     });
-// --- End Role & Permission Routes ---
+    // --- End Role & Permission Routes ---
 
 });

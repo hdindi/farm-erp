@@ -5,9 +5,9 @@ namespace Database\Seeders;
 use App\Models\DiseaseManagement;
 use Carbon\Carbon; // Ensure Carbon is imported
 use Illuminate\Database\Seeder;
+
 // Removed App\Models\Batch import as it's not directly used here
 // use App\Models\Batch;
-
 
 // Renamed class to follow Laravel convention (Optional, but good practice)
 // class DiseaseManagementTableSeeder extends Seeder
@@ -15,8 +15,6 @@ class DiseaseManagementTableSeeder extends Seeder // Standard naming convention
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
     public function run(): void // Added return type hint
     {

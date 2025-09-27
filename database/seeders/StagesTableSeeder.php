@@ -1,5 +1,7 @@
 <?php
+
 // database/seeders/StagesTableSeeder.php
+
 namespace Database\Seeders;
 
 use App\Models\Stage;

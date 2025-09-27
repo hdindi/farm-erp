@@ -20,10 +20,10 @@ class EggProductionController extends Controller
     public function create()
     {
         $dailyRecords = DailyRecord::with('batch')
-            ->whereHas('batch.birdType', function($query) {
+            ->whereHas('batch.birdType', function ($query) {
                 $query->where('name', 'Layer');
             })
-            ->whereHas('batch', function($query) {
+            ->whereHas('batch', function ($query) {
                 $query->where('status', 'active')
                     ->where('bird_age_days', '>=', 126); // Layers older than 18 weeks
             })
@@ -48,7 +48,7 @@ class EggProductionController extends Controller
         $sum = $validated['good_eggs'] + $validated['cracked_eggs'] + $validated['damaged_eggs'];
         if ($sum != $validated['total_eggs']) {
             return back()->withErrors([
-                'total_eggs' => 'The sum of good, cracked, and damaged eggs must equal the total eggs.'
+                'total_eggs' => 'The sum of good, cracked, and damaged eggs must equal the total eggs.',
             ])->withInput();
         }
 
@@ -61,16 +61,17 @@ class EggProductionController extends Controller
     public function show(EggProduction $eggProduction)
     {
         $eggProduction->load(['dailyRecord.batch']);
+
         return view('egg-production.show', compact('eggProduction'));
     }
 
     public function edit(EggProduction $eggProduction)
     {
         $dailyRecords = DailyRecord::with('batch')
-            ->whereHas('batch.birdType', function($query) {
+            ->whereHas('batch.birdType', function ($query) {
                 $query->where('name', 'Layer');
             })
-            ->whereHas('batch', function($query) {
+            ->whereHas('batch', function ($query) {
                 $query->where('status', 'active')
                     ->where('bird_age_days', '>=', 126); // Layers older than 18 weeks
             })
@@ -95,7 +96,7 @@ class EggProductionController extends Controller
         $sum = $validated['good_eggs'] + $validated['cracked_eggs'] + $validated['damaged_eggs'];
         if ($sum != $validated['total_eggs']) {
             return back()->withErrors([
-                'total_eggs' => 'The sum of good, cracked, and damaged eggs must equal the total eggs.'
+                'total_eggs' => 'The sum of good, cracked, and damaged eggs must equal the total eggs.',
             ])->withInput();
         }
 

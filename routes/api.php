@@ -1,8 +1,9 @@
 <?php
 
+use App\Http\Controllers\BatchController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\BatchController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -20,7 +21,15 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 // Add your other API routes
-
-Route::get('/batches/{batch}', [BatchController::class, 'getBatchDetails']);
-Route::get('/daily-records/{dailyRecord}/feed-data', [BatchController::class, 'getFeedDataForDailyRecord']);
-
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('batches', BatchController::class)->names([
+        'index' => 'api.batches.index',
+        'store' => 'api.batches.store',
+        'show' => 'api.batches.show',
+        'update' => 'api.batches.update',
+        'destroy' => 'api.batches.destroy',
+    ]);
+    Route::get('batches/{batch}/performance', [BatchController::class, 'performance'])->name('api.batches.performance');
+    Route::get('/batches/{batch}/details', [BatchController::class, 'getBatchDetails'])->name('api.batches.details');
+    Route::get('/daily-records/{dailyRecord}/feed-data', [BatchController::class, 'getFeedDataForDailyRecord'])->name('api.daily-records.feed-data');
+});

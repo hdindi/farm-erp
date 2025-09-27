@@ -10,6 +10,7 @@ class StageController extends Controller
     public function index()
     {
         $stages = Stage::latest()->paginate(10);
+
         return view('stages.index', compact('stages'));
     }
 

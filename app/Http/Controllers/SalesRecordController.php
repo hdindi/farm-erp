@@ -49,6 +49,7 @@ class SalesRecordController extends Controller
     public function show(SalesRecord $salesRecord)
     {
         $salesRecord->load(['salesPerson', 'salesPrice']);
+
         return view('sales-records.show', compact('salesRecord'));
     }
 

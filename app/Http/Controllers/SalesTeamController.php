@@ -10,6 +10,7 @@ class SalesTeamController extends Controller
     public function index()
     {
         $teamMembers = SalesTeam::latest()->paginate(10);
+
         return view('sales-teams.index', compact('teamMembers'));
     }
 

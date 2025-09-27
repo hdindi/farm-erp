@@ -1,6 +1,7 @@
 <?php
 
 // database/seeders/UsersTableSeeder.php
+
 namespace Database\Seeders;
 
 use App\Models\User;

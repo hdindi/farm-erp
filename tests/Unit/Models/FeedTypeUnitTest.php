@@ -2,19 +2,19 @@
 
 namespace Tests\Unit\Models; // Ensure this namespace matches your directory structure
 
-use Tests\TestCase;
-use App\Models\FeedType;
-use App\Models\FeedRecord;        // For relationship testing
-use App\Models\SupplierFeedPrice; // For relationship testing
-use App\Models\DailyRecord;       // Dependency for FeedRecord
-use App\Models\Batch;             // Dependency for DailyRecord
-use App\Models\BirdType;          // Dependency for Batch
-use App\Models\Breed;             // Dependency for Batch
-use App\Models\Stage;             // Dependency for DailyRecord
-use App\Models\Supplier;          // Dependency for SupplierFeedPrice
-use App\Models\PurchaseUnit;      // Dependency for SupplierFeedPrice
+use App\Models\Batch;
+use App\Models\BirdType;
+use App\Models\Breed;        // For relationship testing
+use App\Models\DailyRecord; // For relationship testing
+use App\Models\FeedRecord;       // Dependency for FeedRecord
+use App\Models\FeedType;             // Dependency for DailyRecord
+use App\Models\PurchaseUnit;          // Dependency for Batch
+use App\Models\Stage;             // Dependency for Batch
+use App\Models\Supplier;             // Dependency for DailyRecord
+use App\Models\SupplierFeedPrice;          // Dependency for SupplierFeedPrice
+use Illuminate\Database\Eloquent\Relations\HasMany;      // Dependency for SupplierFeedPrice
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Tests\TestCase;
 
 class FeedTypeUnitTest extends TestCase
 {
@@ -22,8 +22,6 @@ class FeedTypeUnitTest extends TestCase
 
     /**
      * Test if a FeedType can be created.
-     *
-     * @return void
      */
     public function test_feed_type_can_be_created(): void
     {
@@ -42,12 +40,10 @@ class FeedTypeUnitTest extends TestCase
 
     /**
      * Test the fillable attributes of the FeedType model.
-     *
-     * @return void
      */
     public function test_feed_type_has_correct_fillable_attributes(): void
     {
-        $feedType = new FeedType();
+        $feedType = new FeedType;
         // These should match the $fillable array in your App\Models\FeedType model
         $expectedFillable = ['name', 'description'];
         $this->assertEquals($expectedFillable, $feedType->getFillable());
@@ -56,8 +52,6 @@ class FeedTypeUnitTest extends TestCase
     /**
      * Test the 'feedRecords' relationship.
      * A FeedType can have many FeedRecords.
-     *
-     * @return void
      */
     public function test_feed_type_has_many_feed_records_relationship(): void
     {
@@ -93,8 +87,6 @@ class FeedTypeUnitTest extends TestCase
     /**
      * Test the 'supplierFeedPrices' relationship.
      * A FeedType can have many SupplierFeedPrices.
-     *
-     * @return void
      */
     public function test_feed_type_has_many_supplier_feed_prices_relationship(): void
     {

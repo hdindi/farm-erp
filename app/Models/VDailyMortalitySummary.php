@@ -29,7 +29,9 @@ class VDailyMortalitySummary extends Model
      * @var string|null
      */
     protected $primaryKey = 'record_date'; // Assuming date is the primary grouping/key
+
     public $incrementing = false;
+
     protected $keyType = 'string'; // Date is treated as string key here
 
     /**

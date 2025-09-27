@@ -10,6 +10,7 @@ class BreedController extends Controller
     public function index()
     {
         $breeds = Breed::latest()->paginate(10);
+
         return view('breeds.index', compact('breeds'));
     }
 

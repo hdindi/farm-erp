@@ -10,6 +10,7 @@ class PurchaseOrderStatusController extends Controller
     public function index()
     {
         $statuses = PurchaseOrderStatus::latest()->paginate(10);
+
         return view('purchase-order-statuses.index', compact('statuses'));
     }
 

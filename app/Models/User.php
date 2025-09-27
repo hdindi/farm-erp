@@ -4,13 +4,10 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany; // Import BelongsToMany
-use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Spatie\Activitylog\Traits\LogsActivity;
+use Illuminate\Notifications\Notifiable; // Import BelongsToMany
 use Spatie\Activitylog\LogOptions; // <-- Add this use statement
-
 
 class User extends Authenticatable
 {
@@ -66,9 +63,6 @@ class User extends Authenticatable
 
     /**
      * Check if the user has a specific role.
-     *
-     * @param string|array $roleName
-     * @return bool
      */
     public function hasRole(string|array $roleName): bool
     {
@@ -85,9 +79,6 @@ class User extends Authenticatable
     /**
      * Check if the user has a specific permission through their roles.
      * Requires roles.modulePermissions.permission relationships to be loaded for efficiency.
-     *
-     * @param string $permissionName
-     * @return bool
      */
     public function hasPermissionTo(string $permissionName): bool
     {
@@ -100,20 +91,17 @@ class User extends Authenticatable
                 return true;
             }
         }
+
         return false;
     }
 
     /**
      * Check if the user is an administrator (example helper).
-     *
-     * @return bool
      */
     public function isAdmin(): bool
     {
         return $this->hasRole('Admin'); // Assumes an 'Admin' role exists
     }
-
-
 
     // // Remove these static properties if you define them in getActivitylogOptions
     // protected static $logAttributes = ['name', 'email'];
@@ -127,7 +115,7 @@ class User extends Authenticatable
             ->logOnly(['name', 'email', 'phone_number', 'is_active']) // Log changes to these attributes
             ->logOnlyDirty() // Only log changes (vs logging entire model on update)
             ->useLogName('User') // Optional: Set a custom log name
-            ->setDescriptionForEvent(fn(string $eventName) => "User {$this->name} was {$eventName}") // Customize log description
+            ->setDescriptionForEvent(fn (string $eventName) => "User {$this->name} was {$eventName}") // Customize log description
             ->dontSubmitEmptyLogs(); // Prevent logging if nothing changed
     }
 

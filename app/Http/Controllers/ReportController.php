@@ -3,21 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Models\Batch;
-use App\Models\User;
-use App\Models\FeedType; // Added
-use App\Models\Disease;  // Added
+use App\Models\Disease; // Added
+use App\Models\FeedType;  // Added
 use App\Models\Vaccine;  // Added
 use App\Models\VDailyEggSummary;
 use App\Models\VFarmKpi;
 use App\Models\VSalesBySalesperson;
-use App\Models\VwBatchSummary;
-use App\Models\VwBatchDailyPerformance; // Added
-use App\Models\VwBatchFeedConsumption; // Added
+use App\Models\VwBatchDailyPerformance;
 use App\Models\VwBatchDiseaseManagement; // Added
+use App\Models\VwBatchFeedConsumption; // Added
+use App\Models\VwBatchSummary; // Added
 use App\Models\VwBatchVaccinationDetails; // Added
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB; // If needed for complex aggregations not in views
+
+// If needed for complex aggregations not in views
 
 class ReportController extends Controller
 {
@@ -27,6 +27,7 @@ class ReportController extends Controller
     public function farmKpis()
     {
         $kpis = VFarmKpi::first();
+
         return view('reports.farm-kpis', compact('kpis'));
     }
 
@@ -75,8 +76,8 @@ class ReportController extends Controller
         // ✅ NEW: Calculate totals for the table footer
         $totals = [
             'total_collected' => $eggSummaries->sum('total_eggs_collected'),
-            'total_good'      => $eggSummaries->sum('good_eggs'),
-            'total_bad'       => $eggSummaries->sum('bad_eggs'),
+            'total_good' => $eggSummaries->sum('good_eggs'),
+            'total_bad' => $eggSummaries->sum('bad_eggs'),
         ];
 
         // Sort for the view (most recent first)
@@ -96,6 +97,7 @@ class ReportController extends Controller
     public function salesBySalesperson(Request $request)
     {
         $salesData = VSalesBySalesperson::orderBy('total_sales_amount', 'desc')->get();
+
         return view('reports.sales-by-salesperson', compact('salesData'));
     }
 
@@ -134,7 +136,7 @@ class ReportController extends Controller
         $chartMortalityData = [];
         if ($request->filled('batch_id') && $performanceData->isNotEmpty()) {
             $chartData = $performanceData->pluck('daily_mortality_rate_percent', 'record_date');
-            $chartLabels = $chartData->keys()->map(fn($date) => Carbon::parse($date)->format('M d'))->toArray();
+            $chartLabels = $chartData->keys()->map(fn ($date) => Carbon::parse($date)->format('M d'))->toArray();
             $chartMortalityData = $chartData->values()->toArray();
         }
 
@@ -186,15 +188,14 @@ class ReportController extends Controller
         $feedTypes = FeedType::orderBy('name')->get();
 
         // Prepare chart data (e.g., total consumption per day)
-        $chartData = $feedData->groupBy(function($item) {
+        $chartData = $feedData->groupBy(function ($item) {
             return Carbon::parse($item->record_date)->format('Y-m-d');
         })->map(function ($group) {
             return $group->sum('quantity_kg');
         });
 
-        $chartLabels = $chartData->keys()->map(fn($date) => Carbon::parse($date)->format('M d'))->toArray();
+        $chartLabels = $chartData->keys()->map(fn ($date) => Carbon::parse($date)->format('M d'))->toArray();
         $chartFeedData = $chartData->values()->toArray();
-
 
         return view('reports.feed-consumption', compact(
             'feedData',
@@ -296,5 +297,4 @@ class ReportController extends Controller
             'vaccines'
         ));
     }
-
 }

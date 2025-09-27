@@ -12,6 +12,7 @@ class Role extends Model
     use HasFactory;
 
     protected $fillable = ['name', 'description', 'is_active'];
+
     protected $casts = ['is_active' => 'boolean', 'created_at' => 'datetime', 'updated_at' => 'datetime'];
 
     /**
@@ -32,6 +33,7 @@ class Role extends Model
         if (! $this->relationLoaded('modulePermissions.permission')) {
             return collect();
         }
+
         return $this->modulePermissions->map->permission->filter()->unique('id');
     }
 
@@ -49,13 +51,14 @@ class Role extends Model
      */
     public function hasPermissionTo(string $permissionName, ?string $moduleName = null): bool
     {
-        if (! $this->relationLoaded('modulePermissions.permission') || ($moduleName && !$this->relationLoaded('modulePermissions.module'))) {
+        if (! $this->relationLoaded('modulePermissions.permission') || ($moduleName && ! $this->relationLoaded('modulePermissions.module'))) {
             $this->loadMissing(['modulePermissions.permission', 'modulePermissions.module']);
         }
 
         return $this->modulePermissions->contains(function ($modulePermission) use ($permissionName, $moduleName) {
             $permissionMatch = $modulePermission->permission && $modulePermission->permission->name === $permissionName;
-            $moduleMatch = !$moduleName || ($modulePermission->module && $modulePermission->module->name === $moduleName);
+            $moduleMatch = ! $moduleName || ($modulePermission->module && $modulePermission->module->name === $moduleName);
+
             return $permissionMatch && $moduleMatch;
         });
     }

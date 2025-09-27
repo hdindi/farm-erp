@@ -12,8 +12,9 @@ class StageFactory extends Factory
     public function definition(): array
     {
         $minAge = $this->faker->numberBetween(1, 30);
+
         return [
-            'name' => $this->faker->unique()->word . ' Stage',
+            'name' => $this->faker->unique()->word.' Stage',
             'description' => $this->faker->sentence,
             'min_age_days' => $minAge,
             'max_age_days' => $this->faker->numberBetween($minAge + 7, $minAge + 60),

@@ -1,6 +1,7 @@
 <?php
 
 // database/seeders/SalesPricesTableSeeder.php
+
 namespace Database\Seeders;
 
 use App\Models\Batch;

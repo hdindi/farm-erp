@@ -14,6 +14,7 @@ class ModuleController extends Controller
     public function index()
     {
         $modules = Module::orderBy('name')->get();
+
         return view('modules.index', compact('modules'));
     }
 

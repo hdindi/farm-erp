@@ -7,8 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class VFarmKpi extends Model
 {
     protected $table = 'v_farm_kpis';
+
     public $timestamps = false;
+
     protected $primaryKey = null; // No single primary key
+
     public $incrementing = false;
 
     protected $casts = [

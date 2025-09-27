@@ -29,7 +29,9 @@ class VEmployeeActivitySummary extends Model
      * @var string|null
      */
     protected $primaryKey = 'user_name'; // Assuming name is unique for this summary view
+
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     /**
